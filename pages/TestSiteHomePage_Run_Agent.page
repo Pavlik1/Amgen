@@ -1,0 +1,169 @@
+<apex:page showHeader="false" controller="PreChatFormController">
+
+    <script type='text/javascript' src='https://c.la1-c1-frf.salesforceliveagent.com/content/g/js/37.0/deployment.js'></script>
+
+    <script type="text/javascript">
+        (function() { 
+            function handlePageLoad() {
+                var endpointMatcher = new RegExp("[\\?\\&]endpoint=([^&#]*)");
+                document.getElementById('PreChatForm').setAttribute('action',
+                decodeURIComponent(endpointMatcher.exec(document.location.search)[1]));
+            } 
+            if (window.addEventListener) {
+                window.addEventListener('load', handlePageLoad, false);
+            } else { 
+                window.attachEvent('onload', handlePageLoad, false);
+            }}
+        )();
+    </script>
+
+    <script type="text/javascript"> 
+        var laFormData = {
+            formId : "PreChatForm",
+            questionRowPrefix : "trowQ",
+            answerRowPrefix : "trowA",
+            includeSelectOne: true
+        };
+        var laData = {"roots":[6],"logic":[{"answer":0,"depQuestions":[8,9,10],"question":6},{"answer":1,"depQuestions":[7],"question":6},{"answer":0,"depQuestions":[11],"question":10},{"answer":1,"depQuestions":[5],"question":10}]};    
+    </script>
+    
+    <script type="text/javascript" src="{!$Resource.PreChatFormScript}"></script>
+<!-- ############################################################# -->
+
+    <script type="text/javascript">
+        function getRemoteContact(form) {   
+            var control, controls = form.elements;   
+            try {
+                var contName;
+                var contUserid;
+                var contEmail='';
+                var contQuestion;
+                var contSessionId;
+            
+                for (var i=0, iLen=controls.length; i<iLen; i++) {     
+                    control = controls[i];        
+                    if(control.name=='liveagent.prechat:Email')
+                        contEmail= control.value.trim(); 
+                     
+                    if(control.name=='liveagent.prechat.name')
+                        contName= control.value.trim(); 
+                     
+                    if(control.name=='liveagent.prechat:UserId')
+                        contUserid= control.value.trim(); 
+                     
+                    if(control.name=='liveagent.prechat:question')
+                        contQuestion= control.value.trim();               
+                }
+
+                var reqFieldsEmpty=false;
+        
+                if (contUserid==''){
+                    if (contName=='' || contEmail==''){
+                        reqFieldsEmpty=true;
+                    } 
+                }
+                
+                if(contQuestion=='Value3') {
+                    reqFieldsEmpty=true;
+                }
+                        
+                if(reqFieldsEmpty){
+                    return false;
+                } else {
+                    if(contEmail != '' && validateEmail(contEmail) == false){
+                        return false;
+                    }
+                    return true;
+                    if(contUserid == '' && contEmail != ''){
+                        var accountId;                
+                        return false;
+                    }
+                }
+             }catch(ex){alert('Exception:'+ex);}//Try block end.
+        }//Function getRemoteContact end.
+    
+        function validateEmail(email) {
+            var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+            if (reg.test(email) == false) {
+                return (false);
+            }
+        }
+    </script>
+    
+    <div id="contentWrap">
+        <p id="logo">LOGO</p>
+        
+        <div id="content">
+            <div id="helpMessage" style="display: 'none'">
+                <a href="google.com" target="_blank">Link to GOOGLE</a>
+            </div>
+            
+            <div class="laFormHeading">
+                <span class="req">REQ</span>
+            </div>
+                
+            <form name='PreChatForm' id='PreChatForm' method="post" > 
+                <table cellspacing="0" cellpadding="0" border="0">
+                    <tr dir="ltr"></tr>
+     
+                    <tr id="trowQ1" valign="middle" dir="ltr" style="display: 'block'">
+                      <td>
+                          <label for="q1">
+                              <span class="laFormText">Name</span>
+                              <span class="req">*</span>
+                          </label>
+                          <br />
+                          <input tabindex="3" type="text" name="liveagent.prechat.name" id="q1" size="30" value="{!strCustomerName}" maxlength="900"  />
+                      </td>
+                    </tr>
+     
+                    <tr id="trowQ7" valign="middle" dir="ltr" style="display: {!IF(strCustomerID==null,'block','none')};">
+                        <td>
+                            <label for="q7">
+                                <span class="laFormText">Email</span>
+                                <span class="req">*</span>
+                            </label>
+                            <br/>
+                            <input tabindex="5" type="email" name="liveagent.prechat:Email" id="q7" size="30" value="" maxlength="900"  />
+                        </td>
+                    </tr>
+     
+                    <tr id="trowQ8" valign="middle" dir="ltr" style="display: none;">
+                        <td>
+                            <label for="q8" style="display: {!IF(strCustomerID==null,'block','none')};">
+                                <span class="laFormText">Username</span>
+                                <span class="req">*</span>
+                            </label>                        
+                            <input tabindex="6" type="text" name="liveagent.prechat:accountNumber" id="q8" size="30" value="" maxlength="900" style="display: {!IF(strCustomerID==null,'block','none')};"/>
+                        </td>
+                    </tr>
+     
+                    <input type="text" name="liveagent.prechat:UserId" id="invisibleuserid" size="24" value="{!strCustomerID}" maxlength="900" style="display:none" />
+
+                    <tr id="trowQ11" valign="middle" dir="ltr">
+                        <td>
+                            <label for="q11">
+                                <span class="laFormText">Subject</span>
+                                <span class="req">*</span>
+                            </label>
+                            <br />
+                            <select tabindex="8" name="liveagent.prechat:question" id="q11" size="1">
+                                 <apex:repeat value="{!QueryOptions}" var="opt">
+                                    <option  value="{!opt.value}" label="{!opt.label}" >{!opt.label}</option>
+                                 </apex:repeat>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+                <tr>
+                    <td align="right" style="padding-right: 12px;">
+                        <div id="startGallery">
+                            <input type='submit' style="color: 'white'" value='Submit' id='prechat_submit'  onclick="return getRemoteContact(this.form)" />
+                        </div>
+                    </td>                         
+                </tr>  
+            </form> 
+        </div>
+    </div>
+</apex:page>

@@ -1,0 +1,398 @@
+<apex:page controller="DashboardsController">
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Jquery_sumo_select, '/sumoselect.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.Jquery_sumo_select, '/jquery.sumoselect.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}" />
+
+    <apex:form styleClass="mainFormClass">
+        <apex:pageMessages id="messageId" />
+
+        <apex:actionFunction name="selectprojects" action="{!reloadProjectsToStates}" reRender="projectsToStatesId, userAdoptionId, messageId, ttttt" />
+        <apex:actionFunction name="rerenderFilters" reRender="filtersId, messageId" />
+        <!--apex:actionFunction name="rerenderFilters" reRender="filtersId, messageId" /-->
+        <apex:actionFunction name="reloadCharts" reRender="projectsToStatesId, userAdoptionId, messageId, ttttt" />
+
+
+
+<script type="text/javascript">
+    function updateCharts(){
+        reloadCharts();
+        console.log('start');
+        var _formName='j_id0:j_id5';console.log(_formName);
+        var _paramName = 'j_id0:j_id5:pbId:projectAdoptionTabId_server_submit'; 
+        var _params = new Object(); 
+        _params[_paramName] = _paramName; 
+        _JSFFormSubmit('j_id0:j_id5:pbId:projectAdoptionTabId', _formName, null, null);
+        this.onclick = null; 
+        _clearJSFFormParameters(_formName, null, [_paramName]);
+        console.log('ok');
+        return false;
+    }
+</script>
+
+
+        <apex:pageBlock id="pbId">
+            <table>
+                <tr>
+                    <td>
+                        <apex:outputPanel id="filtersId" style="width: 100%;">
+                            <table class="table" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 5%;font-size: 13.3px !important;">
+                                            <apex:outputLabel styleClass="label" value="Filter:" />
+                                        </td>
+                                        <td style="width: 10%;font-size: 13.3px !important;">
+                                            <!--apex:selectList value="{!selectedFilter}" size="1" styleClass="form-control" onchange="rerenderFilters();selectprojects();"-->
+                                            <apex:selectList value="{!selectedFilter}" size="1" styleClass="form-control" >
+                                                <apex:selectOptions value="{!filters}" />
+                                                <!--apex:actionSupport event="onchange" action="{!reloadProjectsToStates}" reRender="" oncomplete="rerenderFilters();updateCharts();" /-->
+                                                <apex:actionSupport event="onchange" action="{!reloadFilters}" reRender="" oncomplete="rerenderFilters();updateCharts();" />
+                                            </apex:selectList>
+                                        </td>
+
+                                        <td style="width: 5%;font-size: 13.3px !important;">
+                                            <apex:outputLabel styleClass="label" value="Project: " rendered="{!selectedFilter = 'Project'}" />
+                                            <apex:outputLabel styleClass="label" value="Level: " rendered="{!selectedFilter = 'Risk Level'}" />
+                                            <apex:outputLabel styleClass="label" value="Impact: " rendered="{!selectedFilter = 'Type of Impact'}" />
+                                        </td>
+
+                                        <td style="width: 10%;font-size: 13.3px !important;">
+                                            <!--apex:selectList value="{!projectIds}" multiselect="true" styleClass="SelAll" onchange="selectprojects();" rendered="{!selectedFilter = 'Project'}" -->
+                                            <apex:selectList value="{!projectIds}" multiselect="true" styleClass="SelAll" rendered="{!selectedFilter = 'Project'}" >
+                                                <apex:selectOptions value="{!projects}" />
+                                                <apex:actionSupport event="onchange" action="{!reloadProjectsToStates}" reRender="" oncomplete="updateCharts();" />
+                                            </apex:selectList>
+                                            <!--apex:selectList value="{!selectedRiskStatuses}" multiselect="true" styleClass="SelAll" onchange="selectprojects();" rendered="{!selectedFilter = 'Risk Level'}"-->
+                                            <apex:selectList value="{!selectedRiskStatuses}" multiselect="true" styleClass="SelAll" rendered="{!selectedFilter = 'Risk Level'}">
+                                                <apex:selectOptions value="{!riskStatuses}" />
+                                                <apex:actionSupport event="onchange" action="{!reloadProjectsToStates}" reRender="" oncomplete="updateCharts();" />
+                                            </apex:selectList>
+                                            <!--apex:selectList value="{!selectedTypeOfImpacts}" multiselect="true" styleClass="SelAll" onchange="selectprojects();" rendered="{!selectedFilter = 'Type of Impact'}"-->
+                                            <apex:selectList value="{!selectedTypeOfImpacts}" multiselect="true" styleClass="SelAll" rendered="{!selectedFilter = 'Type of Impact'}">
+                                                <apex:selectOptions value="{!typeOfImpacts}" />
+                                                <apex:actionSupport event="onchange" action="{!reloadProjectsToStates}" reRender="" oncomplete="updateCharts();" />
+                                            </apex:selectList>
+                                        </td>
+
+                                        <td style="width: 5%;font-size: 13.3px !important;">
+                                            <apex:outputLabel styleClass="label" value="Role: " rendered="{!selectedFilter = 'Project'}" />
+                                        </td>
+                                        <td style="width: 10%;font-size: 13.3px !important;">
+                                            <!--apex:selectList value="{!selectedRoles}" multiselect="true" styleClass="SelAll" onchange="selectprojects();" rendered="{!selectedFilter = 'Project'}"-->
+                                            <apex:selectList value="{!selectedRoles}" multiselect="true" styleClass="SelAll" rendered="{!selectedFilter = 'Project'}">
+                                                <apex:selectOptions value="{!userRole}" />
+                                                <apex:actionSupport event="onchange" action="{!reloadProjectsToStates}" reRender="" oncomplete="updateCharts();" />
+                                            </apex:selectList>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <script>
+                                j$ = jQuery.noConflict();
+                                j$('.SelAll').SumoSelect();
+                            </script>
+
+                        </apex:outputPanel>
+                    </td>
+                </tr>
+            </table>
+
+            <apex:tabPanel >
+                <apex:tab label="Project Adoption" id="projectAdoptionTabId">
+
+                    <table>
+                        <tr>
+                            <td>
+                                <apex:outputPanel id="projectsToStatesId" style="width: 100%;">
+                                    <apex:outputPanel >
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%;">
+                                                        <apex:outputLabel value="New Projects" style="font-weight: bold;" />
+
+                                                        <apex:chart height="350" width="500" data="{!newProjects}">
+
+                                                            <apex:axis steps="0" type="Numeric" position="left" fields="projectCounts" title="" grid="true" />
+                                                            <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                                <apex:chartLabel rotate="315" />
+                                                            </apex:axis>
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" markerType="circle" yField="projectCounts" markerFill="#FF0000" />
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                </td>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%;">
+                                                        <apex:outputLabel value="Current Projects By State" style="font-weight: bold;" />
+                                                        <apex:chart height="350" width="500" data="{!projectsToStates}">
+                                                            <apex:pieSeries dataField="projectsCount" labelField="state" />
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel >
+                                        <table id='tools_chart_table'>
+                                            <tr>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%;">
+                                                        <apex:outputLabel value="Current Projects By Organizational Impact" style="font-weight: bold;" />
+                                                        <apex:chart height="350" width="500" data="{!projectImpacts}">
+                                                            <apex:pieSeries dataField="projectsCount" labelField="state" />
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                </td>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%; display: inline-block; vertical-align: middle;">
+                                                        <apex:outputLabel value="Current Projects using Tools" style="font-weight: bold;" />
+
+                                                        <apex:chart height="350" width="500" data="{!projectToolUsageTrackings}">
+                                                            <apex:axis steps="9" type="Numeric" minimum="0" maximum="100" position="left" fields="dgmtTool,riskAssessmentTool,weightedRankingsMatrix,decisionExecutionTool,decisionEvaluationTool" grid="true" />
+                                                            <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                                <apex:chartLabel rotate="270" />
+                                                            </apex:axis>
+
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" yField="dgmtTool" markerType="circle" markerFill="#FF0000" title="DMGT">
+                                                                <apex:chartTips height="20" width="120" valueField="pb_test_value" labelField="pb_test_label" rendererFn="chartTipsFN" />
+                                                            </apex:lineSeries>
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" yField="riskAssessmentTool" markerType="circle" markerFill="#00FF00" title="Risk Assessment Tool" >
+                                                                <apex:chartTips height="20" width="120" valueField="pb_test_value" labelField="pb_test_label" rendererFn="chartTipsFN" />
+                                                            </apex:lineSeries>
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" yField="weightedRankingsMatrix" markerType="circle" markerFill="#0000FF" title="Weighted Rankings Matrix" >
+                                                                <apex:chartTips height="20" width="120" valueField="pb_test_value" labelField="pb_test_label" rendererFn="chartTipsFN" />
+                                                            </apex:lineSeries>                                                    
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" yField="decisionExecutionTool" markerType="circle" markerFill="#FFFF00" title="Decision Execution Tool" >
+                                                                <apex:chartTips height="20" width="120" valueField="pb_test_value" labelField="pb_test_label" rendererFn="chartTipsFN" />
+                                                            </apex:lineSeries>                                                    
+                                                            <apex:lineSeries axis="left" fill="false" xField="monthName" yField="decisionEvaluationTool" markerType="circle" markerFill="#8E35EF" title="Decision Evaluation Tool" >
+                                                                <apex:chartTips height="20" width="120" valueField="pb_test_value" labelField="pb_test_label" rendererFn="chartTipsFN" />
+                                                            </apex:lineSeries>                                                    
+
+                                                            <!--apex:axis type="Numeric" position="right" minimum="0" maximum="8" fields="totalProjects" grid="false" />
+
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="totalProjects" markerType="cross" markerSize="1" title="total projects"/>
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="dgmtProjects" markerType="cross" markerSize="1" title="DMGT"/>
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="raProjects" markerType="cross" markerSize="1" title="ra projects"/>
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="wrmProjects" markerType="cross" markerSize="1" title="wrm projects"/>
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="dexProjects" markerType="cross" markerSize="1" title="dex projects"/>
+                                                            <apex:lineSeries axis="right" fill="true" xField="monthName" yField="devProjects" markerType="cross" markerSize="1" title="dev projects"/-->
+
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                    <div style="display: none; vertical-align: middle;" id="add_info_block">
+                                                        <fieldset>
+                                                            <legend></legend>
+                                                            <table id="add_info" style="background: #fff; border: 1px solid black; display: block; max-height: 350px; overflow: auto;"></table>
+                                                        </fieldset>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel >
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%;">
+                                                        <apex:outputLabel value="Time To Completion" style="font-weight: bold;" />
+
+                                                        <apex:chart height="350" width="500" data="{!projectsFromStartToCompletions}">
+                                                            <apex:axis steps="9" type="Numeric" position="left" fields="phase1Duration,phase2Duration,phase3Duration,phase4Duration" grid="true" />
+                                                            <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                                <apex:chartLabel rotate="270" />
+                                                            </apex:axis>
+
+                                                            <apex:barSeries orientation="vertical" axis="left" stacked="true" xField="monthName" yField="phase1Duration,phase2Duration,phase3Duration,phase4Duration" title="Phase 1,Phase 2,Phase 3,Phase 4" />
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                </td>
+                                                <td>
+                                                    <fieldset style="margin: 10px 0; width: 45%;">
+                                                        <apex:outputLabel value="Project By Phase" style="font-weight: bold;" />
+
+                                                        <apex:chart height="350" width="500" data="{!projectsWithPhase}">
+                                                            <apex:axis steps="9" type="Numeric" position="left" fields="projectsInPhase1,projectsInPhase2,projectsInPhase3,projectsInPhase4" grid="true" />
+                                                            <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                                <apex:chartLabel rotate="270" />
+                                                            </apex:axis>
+
+                                                            <apex:barSeries orientation="vertical" axis="left" stacked="true" xField="monthName" yField="projectsInPhase1,projectsInPhase2,projectsInPhase3,projectsInPhase4" title="Phase 1,Phase 2,Phase 3,Phase 4" />
+                                                            <apex:legend position="right" />
+                                                        </apex:chart>
+                                                    </fieldset>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+
+
+                                </apex:outputPanel>
+                                <!--<c:ProjectsToStatesChart chartData="{!projectsToStates}" id="projectsToStatesId" />-->
+
+                            </td>
+                        </tr>
+                    </table>
+                </apex:tab>
+                <apex:tab label="User Adoption" id="userAdoptionTabId">
+                    <table>
+                        <tr>
+                            <td>
+                                <apex:outputPanel id="userAdoptionId" style="width: 100%;">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <fieldset style="margin: 10px 0; width: 45%; display: inline-block; vertical-align: middle;">
+                                                    <apex:outputLabel value="Active Users" style="font-weight: bold;" />
+
+                                                    <apex:chart height="350" width="500" data="{!loginHistories}" id="ttttt">
+
+                                                        <apex:axis type="Numeric" steps="0" position="left" fields="usersNumber" title="Logins" grid="true" />
+                                                        <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                            <apex:chartLabel rotate="315" />
+                                                        </apex:axis>
+                                                        <apex:lineSeries axis="left" fill="false" xField="monthName" markerType="circle" yField="usersNumber" markerFill="#FF0000" />
+                                                        <apex:legend position="right" />
+                                                    </apex:chart>
+                                                </fieldset>
+                                            </td>
+                                            <td>
+                                                <fieldset style="margin: 10px 0; width: 45%; display: inline-block; vertical-align: middle;">
+                                                    <apex:outputLabel value="Viewing Projects" style="font-weight: bold;" />
+
+                                                    <apex:chart height="350" width="500" data="{!viewProjects}">
+
+                                                        <apex:axis type="Numeric" steps="0" position="left" fields="viewNumber" title="" grid="true" />
+                                                        <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                            <apex:chartLabel rotate="315" />
+                                                        </apex:axis>
+                                                        <apex:lineSeries axis="left" fill="false" xField="monthName" markerType="circle" yField="viewNumber" title="Viewed" markerFill="#FF0000" />
+                                                        <apex:legend position="right" />
+                                                    </apex:chart>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <fieldset style="margin: 10px 0; width: 45%; display: inline-block; vertical-align: middle;">
+                                                    <apex:outputLabel value="Editing Projects" style="font-weight: bold;" />
+
+                                                    <apex:chart height="350" width="500" data="{!editProjects}">
+
+                                                        <apex:axis type="Numeric" steps="0" position="left" fields="editNumber" title="" grid="true" />
+                                                        <apex:axis type="Category" position="bottom" fields="monthName" title="">
+                                                            <apex:chartLabel rotate="315" />
+                                                        </apex:axis>
+                                                        <apex:lineSeries axis="left" fill="false" xField="monthName" markerType="circle" yField="editNumber" title="Edited" markerFill="#FF0000" />
+                                                        <apex:legend position="right" />
+                                                    </apex:chart>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </apex:outputPanel>
+                            </td>
+                        </tr>
+                    </table>
+                </apex:tab>
+                <apex:tab label="Decision Effectiveness">
+
+                </apex:tab>
+            </apex:tabPanel>
+
+        </apex:pageBlock>
+
+        <!--button onclick="callActionFunction()">SendEmail!</button>
+    <apex:actionFunction action="{!sendEmail}" name="sendEmailAF" rerender="frm">
+        <apex:param assignTo="{!strImageBlob}" name="imageBlob" value=""/>
+    </apex:actionFunction-->
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+
+        <script type="text/javascript">
+            //
+            function callActionFunction() {
+                var myBlob = new Blob([document.body.textContent], {
+                    type: "text/plain"
+                });
+                sendEmailAF(myBlob);
+                //window.print()
+            }
+
+            function chartTipsFN(klass, item) {
+
+                var e = window.event;
+                var t = e.target || e.srcElement;
+                t.onclick = function(event) {
+                    renderTable(event, item);
+                };
+                item.sprite.el.dom.onclick = function(event) {
+                    renderTable(event, item);
+                };
+                item.series.line.el.dom.onclick = function(event) {
+                    renderTable(event, item);
+                };
+
+                this.setTitle(item.storeItem.data.monthName, item.value[1]);
+
+                console.log(item);
+            }
+
+            function renderTable(event, item) {
+                if (isNear(jQuery(item.sprite.el.dom), 18, event)) {
+                    $table = jQuery('#add_info');
+                    jQuery('#add_info_block').css('display', 'inline-block');
+                    buildProjectDetailTable($table, item);
+                }
+            }
+
+            function isNear(element, distance, event) {
+
+                var left = element.offset().left - distance,
+                    top = element.offset().top - distance,
+                    right = left + element.width() + 2 * distance,
+                    bottom = top + element.height() + 2 * distance,
+                    x = event.pageX,
+                    y = event.pageY;
+
+                return (x > left && x < right && y > top && y < bottom);
+
+            };
+
+            function buildProjectDetailTable($table, item) {
+                $table.html('');
+
+                var colorBulletStr = '<span style="font-size: 22px; vertical-align: middle; color:' + item.sprite.fill + '">&#8226;</span>';
+                jQuery('#add_info_block').find('legend').html(colorBulletStr + ' Details for ' + item.series.title + ' (' + item.storeItem.data.monthName + ')');
+
+                var projectsMap = item.storeItem.data.totalProjectsMap;
+                var projectList = [];
+
+                for (var property in projectsMap) {
+                    if (projectsMap.hasOwnProperty(property)) {
+                        projectList.push(projectsMap[property]);
+                    }
+                }
+
+                //sort by name
+                projectList.sort(function(a, b) {
+                    return ((a.Name < b.Name) ? -1 : ((a.Name > b.Name) ? 1 : 0));
+                });
+
+                $tbody = jQuery('<tbody>');
+                for (var i = 0; i < projectList.length; i++) {
+                    $tbody.append('<tr><td><a href="/'+projectList[i].Id+'" target="_blank">' + projectList[i].Name + '</td></tr>');
+                }
+
+                $table.append($tbody);
+            }
+        </script>
+    </apex:form>
+
+</apex:page>

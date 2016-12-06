@@ -1,0 +1,142 @@
+<apex:page controller="DecisionsHomePageComponentController" showHeader="true" sidebar="true">
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+
+<style type="text/css">
+.itoolDecisionHomePage {
+    width: 135px;
+    height: 155px;
+}
+.customPopupDecisionHome {
+    background-color: white;
+    border-style: solid;
+    border-width: 2px;
+    left: 35%;
+    padding: 10px;
+    position: absolute;
+    z-index: 9999;
+    width: 50%;
+    height: 50%;
+    top: 20%;
+}
+td.imigeItemHomePageStyle {
+	text-align: center;
+}
+</style>
+
+	<apex:form >
+		<apex:outputPanel id="gotoNewPage">
+			<apex:outputPanel rendered="{!refreshPage}">
+				<script>
+					window.top.location='{!redirectPage}';
+				</script>
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+		<apex:actionFunction name="testName" oncomplete="window.top.location='/apex/{!redirectPage}?id={!projectId}\&retURL=home/home.jsp\&hasselectedproject=';" />
+    	<apex:actionFunction action="{!showPopup}" name="showPopup" rerender="popup,gotoNewPage" >
+    		<apex:param name="redirectPage" value="" assignTo="{!redirectPage}"/>
+    	</apex:actionFunction>
+
+
+    	<table style="width: 100%; border-bottom: 1px solid black;" >
+    		<tr>
+    			<td style="width: 30%;" >
+    				<apex:outputText style="font-size: 13px; font-weight: bold;" value="Choose project:  "/>
+					<apex:selectList size="1" value="{!projectId}" id="projectNamesMain" styleClass="form-control" >
+						<apex:selectOptions value="{!projects}"/>
+					</apex:selectList>
+    			</td>
+    			<td style="width: 70px;" />
+    			<!--td style="width: 85%;" >
+					<apex:selectList size="1" value="{!projectId}" id="projectNamesMain" styleClass="form-control" style="width: 20%;" >
+						<apex:selectOptions value="{!projects}"/>
+					</apex:selectList>
+    			</td-->
+    		</tr>
+    	</table>
+
+    	<table id="tableTest" style="width:100%">
+    		<tr>
+		        <td class="imigeItemHomePageStyle">
+			        <a target="_parent" href="/apex/DecisionMakingGovernance?retURL=home/home.jsp">
+		                <img class="itoolDecisionHomePage" src="{!URLFOR($Resource.Icons, 'icons/decision/StartDecisionProcess.png')}"/>
+		            </a>
+	            </td>
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:commandlink onclick="showPopup('DecisionMakingGovernance');return false;" immediate="true">
+						<apex:image styleClass="itoolDecisionHomePage" value="{!URLFOR($Resource.Icons, 'icons/decision/DecisionMakingGovernance.png')}" />
+					</apex:commandLink>
+		        </td>
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:commandlink onclick="showPopup('RiskAssessmentTool');return false;" immediate="true">
+						<apex:image styleClass="itoolDecisionHomePage" value="{!URLFOR($Resource.Icons, 'icons/decision/RiskAssessmentTool.png')}" />
+					</apex:commandLink>
+
+		        </td>
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:commandlink onclick="showPopup('DecisionExecutionTool');return false;" immediate="true">
+						<apex:image styleClass="itoolDecisionHomePage" value="{!URLFOR($Resource.Icons, 'icons/decision/DecisionExecutionTool.png')}" />
+					</apex:commandLink>
+		        </td>
+	        </tr>
+	        <tr style="height:50px"> </tr>
+	        <tr style="">
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:commandlink onclick="showPopup('DecisionEvaluationTool');return false;" immediate="true">
+						<apex:image styleClass="itoolDecisionHomePage" value="{!URLFOR($Resource.Icons, 'icons/decision/DecisionEvaluationTool.png')}" />
+					</apex:commandLink>
+		        </td>
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:commandlink onclick="showPopup('WeightedRankingsMatrix');return false;" immediate="true">
+						<apex:image styleClass="itoolDecisionHomePage" value="{!URLFOR($Resource.Icons, 'icons/decision/WeightedRankingsMatrix.png')}" />
+					</apex:commandLink>
+		        </td>
+		        <td class="imigeItemHomePageStyle">
+			        <!--a target="_parent" href="/{!dashboardId}"-->
+			        <a target="_parent" href="/apex/Dashboards">
+		                <img class="itoolDecisionHomePage" src="{!URLFOR($Resource.Icons, 'icons/decision/Dashboard.png')}"/>
+		            </a>
+	            </td>
+		        <td class="imigeItemHomePageStyle">
+		        	<apex:outputlink value="apex/Training" target="_blank">
+						<apex:image styleClass="itoolDecisionHomePage" url="{!URLFOR($Resource.Icons, 'icons/decision/Training.png')}" />
+					</apex:outputlink>
+		        </td>
+	        </tr>
+        </table>
+
+		<apex:outputPanel id="popup">
+			<apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+            <apex:outputPanel id="popInnerOutputPnl" styleClass="innerPopup customPopupDecisionHome" layout="block"  rendered="{!displayPopUp}">
+				<apex:pageMessages id="pageMessages"/>
+				<table style="margin-top: 30px; width: 100%;">
+					<tr>
+						<!--td align="right" style="width:10%;">
+							<img width="30px;" height="30px;" src="{!URLFOR($Resource.StartDecisionProcess)}"/>
+						</td-->
+						<td align="center" style="width:20%;">
+							<b><apex:outputLabel styleClass="label" style="font-size: 20px;" value="Please choose project"/></b>
+						</td>
+						<td style="width: 50%;">
+							<apex:selectList size="1" value="{!projectId}" id="projectNames" styleClass="form-control"  style="width: 70%;">
+								<apex:selectOptions value="{!projects}"/>
+							</apex:selectList>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" style="padding-top: 4%;" >
+							<apex:commandbutton value="Ok" action="{!goForvard}" styleClass="btn-add-row btn-page-block" />
+							<!--apex:commandButton value="Ok" onclick="testName();" styleClass="btn-add-row btn-page-block" / -->
+							<apex:commandbutton value="Cancel" action="{!closePopup}" rerender="popup" styleClass="btn-add-row btn-page-block" />
+						</td>
+						<td />
+					</tr>
+				</table>
+			</apex:outputPanel>
+		</apex:outputPanel>
+
+    </apex:form>
+
+	<hr style="display: block;border-style: solid; border-width: 2px; border-color: SpringGreen; margin-top: 30px;"/>
+
+</apex:page>

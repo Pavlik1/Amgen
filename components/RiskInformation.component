@@ -1,0 +1,49 @@
+<apex:component >
+    <apex:attribute name="risk" required="true" type="Risk__c" description="Risk record"/>
+
+    <fieldset>
+        <apex:pageBlockSection columns="2">
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="name" value="Risk"/>
+                <apex:outputField id="name" value="{!risk.Name}"/>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="description" value="Description"/>
+                <apex:outputField id="description" value="{!risk.Description__c}"/>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="type" value="Risk Type"/>
+                <apex:outputField id="type" value="{!risk.Risk_Type__c}"/>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="result" value="Risk Result"/>
+                <apex:outputField id="result" value="{!risk.Risk_Result__c}"/>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="impact" value="Impact"/>
+                <apex:outputField id="impact" value="{!risk.Impact__c}"/>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="likelihood" value="Likelihood"/>
+                <apex:outputField id="likelihood" value="{!risk.Likelihood__c}"/>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="actions" value="Actions"/>
+                <apex:outputField id="actions" value="{!risk.Actions__c}"/>
+            </apex:pageBlockSectionItem>
+            
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="owner" value="Owner"/>
+                <apex:outputField id="owner" value="{!risk.Owner.Name}"/>
+            </apex:pageBlockSectionItem>
+
+        </apex:pageBlockSection>
+    </fieldset>
+    <br />
+</apex:component>

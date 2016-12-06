@@ -1,0 +1,84 @@
+<apex:component controller="PhaseProgressBarController">
+    <apex:attribute name="value" required="true" type="String" assignTo="{!fieldValue}" description="Currently selected stage"/>
+    <apex:attribute name="field" required="true" type="String" assignTo="{!fieldName}" description="The picklist field that forms progress bar" />
+    <apex:attribute name="controllingField" required="false" type="String" assignTo="{!controllingFieldName}" description="Controlling Field for current one" />
+    <apex:attribute name="parentRecordId" required="true" type="String" assignTo="{!projectId}" description="Id of Parent record" />
+    <apex:attribute name="isPhase" required="true" type="Boolean" assignTo="{!isPhaseVal}" description="The description of phase" />
+    <apex:attribute name="allSubphases" required="false" type="Boolean" description="Is it required to render all subphises in one gauge line" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.PhaseProgressBar, 'PhaseProgressBar.css' )}"/>
+     
+    <apex:actionFunction name="refreshSubPhaseView" action="{!clearProperties}" reRender="subPhasesBarId" rendered="{!!isPhaseVal}"/>
+    <apex:actionFunction name="refreshPhaseView"    action="{!clearProperties}" reRender="phasesBarId"    rendered="{!isPhaseVal}"/>
+
+    <apex:outputPanel rendered="{!isPhaseVal}" style="padding-left: 88%;">
+        <apex:outputLabel value="Status  " style="font-size: 16px;"/>
+        <apex:outputField value="{!currentProject.Status_Image__c}" />
+    </apex:outputPanel>
+
+    <ul class="stackedProgress">
+        <!-- START: PHASES Block -->
+        <apex:repeat value="{!phases}" var="ph" rendered="{!isPhaseVal}" id="phasesListId">
+            <li class="phase-name {!IF(ph['Name'] == currentProject.Phase__c, "selected-phase", "")}"> 
+                <!--<div class="phase-icons">
+                    <apex:repeat value="{!icons[ph['Name']]}" var="ic" rendered="{!isPhaseVal}">
+                        <apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/')}{!ic}"/>
+                    </apex:repeat>
+                </div>-->
+                {!ph['Name']}
+                <apex:outputText styleClass="phase-description" value="{!ph['Description__c']}" rendered="{!isPhaseVal}"/>
+            </li>
+        </apex:repeat>
+        <!-- END: PHASES Block-->
+
+        <!-- START: SUB-PHASES Block -->
+        <apex:repeat value="{!phaseToSubPhaseWrapper}" var="sph" rendered="{!!isPhaseVal}" id="supphasesListId">
+            <li class="phase-name">
+                <ul class="stackedProgress sub-phases">
+                    <apex:repeat value="{!phaseToSubPhaseWrapper[sph]}" var="sphLevel">
+                        <li class="subPhase {!IF(sphLevel.subPhaseName == fieldValue, "selected-sub-phase", "")}" onclick="selectSubPhase('{!sphLevel.subPhaseName}'); highlightSelectedSubPhase(this)" title="{!sphLevel.subPhaseName}">
+                            <apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/')}{!sphLevel.icon}" rendered="{!sphLevel.icon != null}"/>
+                        </li>
+                    </apex:repeat>
+                </ul>
+            </li>
+        </apex:repeat>
+        <!-- END: SUB-PHASES Block -->
+        
+    </ul>
+    <script>
+        function highlightSelectedSubPhase(thisEl){
+            $('span[id$="subPhasesAll"]').each(function(){
+                var elIndex = $(this).find('.selected-sub-phase').index();
+                if(elIndex === 0){
+                    $(this).find('.selected-sub-phase').closest('.phase-name').prev().find('.subPhase:last-child').removeClass('pre-selected-sub-phase');
+                }else {
+                    $(this).find('.selected-sub-phase').prev().removeClass('pre-selected-sub-phase');
+                }
+            });
+
+            var el = thisEl;
+            $('.sub-phases li').removeClass('selected-sub-phase');
+            $(el).addClass('selected-sub-phase');
+
+            changePreSelectedSubPhase();
+        }
+
+        $('span[id$="phasesProgress"]').each(function(){
+            $(this).find('.selected-phase').prev().addClass('pre-selected-phase');
+        });
+
+        function changePreSelectedSubPhase() {
+            $('span[id$="subPhasesAll"]').each(function(){
+                var elIndex = $(this).find('.selected-sub-phase').index();
+                if(elIndex === 0){
+                        $(this).find('.selected-sub-phase').closest('.phase-name').prev().find('.subPhase:last-child').addClass('pre-selected-sub-phase');
+                }else {
+                    $(this).find('.selected-sub-phase').prev().addClass('pre-selected-sub-phase');
+                }
+            });
+        }
+
+        changePreSelectedSubPhase();
+    </script>
+</apex:component>

@@ -1,0 +1,114 @@
+<apex:page controller="ProjectsDashboardController">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+     <script type="text/javascript">
+      	google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(initCharts);
+   
+        function initCharts() {         
+          	Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ProjectsDashboardController.orderedProjects}',	            
+	            function(result, event){
+	                if (event.status) {
+	                	// load Column chart
+	                    var visualization = new google.visualization.PieChart(document.getElementById('piechart'));
+	                    
+	                    // Prepare table model for chart with columns
+	                    var data = new google.visualization.DataTable();
+	                    data.addColumn('string', 'val2');
+	                    data.addColumn('number', 'val1');    
+	                    
+	                    // add rows from the remoting results
+	                    for(var i =0; i<result.length;i++){
+	                        var r = result[i];
+	                        data.addRow([r.val2, r.val1]); 
+	                    }
+	                    
+	                    var options = {
+				            title: 'Projects By Phase',
+				            titleTextStyle: {
+						        color: '#FFFFFF',
+						        fontSize: 18
+						    },
+						    pieSliceBorderColor : "#000000",
+						    legendTextStyle: { color: '#FFFFFF' },
+				            backgroundColor: '#464646'
+				        };
+
+	                    // all done, lets draw the chart with some options to make it look nice.
+	                    visualization.draw(data, options);
+
+	                    google.visualization.events.addListener(visualization, 'select', function() {
+							var selectedItem = visualization.getSelection()[0];
+							if (selectedItem) {
+								var phaseName = data.getValue(selectedItem.row, 0);
+					        	google.charts.setOnLoadCallback(initCharts2(phaseName));
+							}
+					        
+					        
+						});
+
+	                } else if (event.type === 'exception') {
+	                
+	                }
+	            }, 
+	            {escape: true}
+	        );
+	    }
+
+      	function initCharts2(phaseName) {         
+          	Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.ProjectsDashboardController.getSubPhaseValues}', phaseName,	            
+	            function(result, event){
+	                if (event.status) {
+
+	                	// load Column chart
+	                    var visualization = new google.visualization.BarChart(document.getElementById('barchart'));
+	                    
+	                    // Prepare table model for chart with columns
+	                    var data = new google.visualization.DataTable();
+	                    data.addColumn('string', 'subPhaseName');
+	                    data.addColumn('number', 'Number Of Projects'); 
+	                    data.addColumn({type: 'string', role: 'style'});    
+	                    
+	                    // add rows from the remoting results
+	                    for(var i =0; i<result.length;i++){
+	                        var r = result[i];
+	                        data.addRow([r.subPhaseName, r.projectsCount, 'gold']); 
+	                    }
+
+	                    var options = {
+				            title: 'Projects By SubPhase',
+				            titleTextStyle: {
+						        color: '#FFFFFF',
+						        fontSize: 18
+						    },
+				            backgroundColor: '#464646', 
+				            hAxis: {
+							    textStyle: {color: '#FFFFFF'},
+							   
+							    minValue: 1
+							},
+							vAxis: {
+							    textStyle: {color: '#FFFFFF'}
+							},
+				            legend: { position: 'none' },
+				            
+				        };
+
+	                    // all done, lets draw the chart with some options to make it look nice.
+	                    visualization.draw(data, options);
+
+	                } else if (event.type === 'exception') {
+	                
+	                }
+	            }, 
+	            {escape: true}
+	        );
+	    }
+            	 
+    </script>
+
+    <div id="piechart" style="width: 600px; height: 400px; display: inline-block" ></div>
+
+    <div id="barchart" style="width: 600px; height: 400px; display: inline-block" ></div>
+
+    
+</apex:page>

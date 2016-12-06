@@ -1,0 +1,62 @@
+<apex:page standardController="Project__c">
+    <style>
+        .action-menu {
+            border-top: 10px solid #9955BB;
+        }
+        .action-menu .section {
+            width: 50%;
+            float: left;
+        }
+        .action-menu .title {
+            display: block;
+            background: #fff;
+            padding: 10px;
+            text-align: left;
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+            text-decoration: none;
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+        }
+        .action-menu .title:hover{
+            border-bottom: 1px solid #9955BB;
+        }
+        .action-menu .i-tool {
+            vertical-align: middle;
+            height: 55px;
+        }
+    </style>
+    <main class="action-menu">
+        <section class="section">
+            <a class="title" target="_parent" href="/apex/DecisionMakingGovernance?id={!Project__c.Id}&isfromproject=true">
+                <img class="i-tool" src="{!URLFOR($Resource.Icons, 'icons/decisionAdditional/DecisionMakingGovernance.png')}"/>
+                Decision-Making Governance Tool(DMGT)
+            </a>
+        </section>
+        <section class="section">
+            <a class="title" target="_parent" href="/apex/RiskAssessmentTool?id={!Project__c.Id}&isfromproject=true">
+                <img class="i-tool" src="{!URLFOR($Resource.Icons, 'icons/decisionAdditional/RiskAssessmentTool.png')}"/>
+                Risk Assessment Tool
+            </a>
+        </section>
+        <section class="section">
+            <a class="title" target="_parent" href="/apex/DecisionExecutionTool?id={!Project__c.Id}&isfromproject=true">
+                <img class="i-tool" src="{!URLFOR($Resource.Icons, 'icons/decisionAdditional/DecisionExecutionTool.png')}"/>
+                Decision Execution Tool
+            </a>
+        </section>
+         <section class="section">
+            <a class="title" target="_parent" href="/apex/DecisionEvaluationTool?id={!Project__c.Id}&isfromproject=true">
+                <img class="i-tool" src="{!URLFOR($Resource.Icons, 'icons/decisionAdditional/DecisionEvaluationTool.png')}"/>
+                Decision Evaluation Tool
+            </a>
+        </section>
+        <section class="section">
+            <a class="title" target="_parent" href="/apex/WeightedRankingsMatrix?id={!Project__c.Id}&isfromproject=true">
+                <img class="i-tool" src="{!URLFOR($Resource.Icons, 'icons/decisionAdditional/WeightedRankingsMatrix.png')}"/>
+                Weighted Rankings Matrix
+            </a>
+        </section>
+    </main>
+</apex:page>

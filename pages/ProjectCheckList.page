@@ -1,0 +1,95 @@
+<apex:page standardController="Project__c" extensions="ProjectCheckListController" action="{!openPageAction}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="   crossorigin="anonymous"></script>
+    
+    <style>
+        [id$="checkListItemsTable"] table thead tr {
+            background: #62b1f6;
+            color: #fff;  
+        }
+        [id$="checkListItemsTable"] table tbody tr.checked {
+            background: #F3F3F3;
+        }
+        [id$="checkListItemsTable"] table tbody tr {
+            border-bottom: 1px solid #dcd;
+        }
+        [id$="checkListItemsTable"] table tbody tr td {
+            color: #999;
+        }
+        [id$="checkListItemsTable"] table thead tr th,
+        [id$="checkListItemsTable"] table tbody tr td {
+            padding: 10px;
+        }
+
+   label.test {
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: relative;
+   }
+   input[type="checkbox"].test:checked + span {
+    position: absolute;
+    left: 2px; top: 2px;
+    width: 100%;
+    height: 100%;
+    background-image: url("{!URLFOR($Resource.Icons, 'icons/ok.gif')}");
+    background-repeat: no-repeat;
+    cursor: pointer;
+   }
+   input[type="checkbox"].test:checked + span {
+    background-position: 0px 0px; 
+   }
+
+    </style>
+    <apex:form id="formId">
+<!--b>test parameter value = {!$CurrentPage.parameters.otherrecordid}<br/></b-->
+        <apex:pageMessages id="messageId"/>
+        <apex:actionFunction name="selectSubPhase" reRender="checkListItemsTable, messageId" action="{!reloaditemsList}">
+            <apex:param assignTo="{!currentProject.Sub_Phases__c}" name="subPhase" value=""/>
+        </apex:actionFunction>
+
+        <apex:outputPanel id="phasesBarId">
+            <c:PhaseProgressBar value="{!currentProject.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isPhase="true" parentRecordId="{!currentProject.Id}"/>
+        </apex:outputPanel>
+        <apex:outputPanel id="subPhasesBarId">
+            <c:PhaseProgressBar value="{!currentProject.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" id="subPhasesAll" allSubphases="true" isPhase="false" parentRecordId="{!currentProject.Id}" />
+        </apex:outputPanel> <br />
+
+        <apex:outputPanel layout="block" id="checkListItemsTable">
+            <div style="max-height: 300px; margin-bottom: 10px; ">
+            
+                <apex:outputLabel value="{!currentProject.Sub_Phases__c}" style="font-size: 16px;"/>
+
+                <apex:outputPanel id="itemsTableId" >
+                    <div style="max-height: 288px; overflow: auto;">
+                        <table style="width:100%; padding: 0; margin: 0; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th width="10%">Checked</th>
+                                    <th width="60%">Check List Item</th>
+                                    <th width="30%">Tool</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:repeat value="{!itemsList}" var="item">
+                                    <tr>
+                                        <td>
+                                            <label class="test"><apex:inputCheckbox value="{!item.Checked__c}" styleClass="checkbox {!IF(!item.Tool_Is_Used__c,'test','')}" /><span></span></label>
+                                        </td>
+                                        <td>
+                                            <apex:outputText value="{!item.Item_Text__c}"/>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+                    </div>
+                </apex:outputPanel>
+
+            </div>
+
+            <apex:commandButton id="btn-sbm" value="Submit" style="background: #62b1f6; color: #fff;" action="{!submit}" reRender="messageId"  oncomplete="refreshSubPhaseView(); refreshPhaseView();"/>
+        </apex:outputPanel>
+
+    </apex:form>
+</apex:page>

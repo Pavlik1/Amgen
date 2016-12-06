@@ -1,0 +1,95 @@
+<apex:page standardController="Project__c" extensions="ProjectListCont" showHeader="false" sidebar="false">
+<style>
+	html, body {
+		margin: 0;
+	}
+	a {
+		text-decoration: none;
+	}
+	.wrapper {
+		background: #e3e3e3;
+	}
+	.proj-name {
+		font-size: 20px;
+		font-weight: 700;
+	    background-color: #098;
+	    color: #fff;
+	    cursor: pointer;
+	    padding: 18px;
+	    width: 100%;
+	    text-align: left;
+	    border: 0;
+	    border-top: 1px solid #544;
+	    margin: 0 !important;
+	}
+	.proj-description {
+	    padding: 0 18px;
+	    display: none;
+	}
+	.proj-description.show {
+	    display: block !important;
+	}
+	.proj-link {
+		display: block;
+		padding: 10px 10px 0 10px;
+		color: #57a;
+		font-weight: 700;
+	}
+	.proj-phases .stackedProgress {
+		margin-bottom: 2px;
+	}
+	.proj-info {
+		padding: 10px; 
+	}
+	.field-name,
+	.field-value {
+		margin: 0 0 7px;
+		display: inline-block;
+		width: 49%;
+		vertical-align: middle;
+	}
+	.field-name {
+		font-weight: 700;
+		color: #777;
+	}
+	.field-value {
+		color: #000;
+		text-align: right;
+	}
+</style>
+<main class="wrapper">
+	<apex:repeat value="{!projects}" var="p">
+		<section class="project">
+			<button class="proj-name">{!p.Name}</button>
+			<div class="proj-description">
+		    	<a class="proj-link" href="/{!p.Id}">&#8594; {!p.Name}</a>
+				<div class="proj-phases">
+					<c:PhaseProgressBarShort value="{!p.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isPhase="true" parentRecordId="{!p.Id}"/>
+                    <c:PhaseProgressBarShort value="{!p.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" id="subPhasesAll" allSubphases="true" isPhase="false" parentRecordId="{!p.Id}"/>
+				</div>
+				<div class="proj-info">
+					<span class="field-name">Sponsor</span>
+					<a class="field-value" href="/{!p.Sponsor__c}">{!p.xrospackages__Sponsor__r.Name}</a>
+					<span class="field-name">Decision Maker</span>
+					<a class="field-value" href="/{!p.Decision_Maker__c}">{!p.xrospackages__Decision_Maker__r.Name}</a>
+					<span class="field-name">Due Date</span>
+					<span class="field-value"><apex:outputField value="{!p.Due_Date__c}"/></span>
+				</div>
+			</div>
+		</section>
+	</apex:repeat>
+</main>
+
+<script>
+
+	var acc = document.getElementsByClassName("proj-name");
+	var i;
+
+	for (i = 0; i < acc.length; i++) {
+	    acc[i].onclick = function(){
+	        this.classList.toggle("active");
+	        this.nextElementSibling.classList.toggle("show");
+	    }
+	}
+</script>
+</apex:page>

@@ -1,0 +1,192 @@
+<apex:page controller="RiskAssessmentToolController" title="Decision Execution Tool" tabStyle="Project__c" action="{!openPageAction}"> 
+    <apex:stylesheet value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/css/jquery.dataTables.min.css')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Jquery_sumo_select, '/sumoselect.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.Jquery_sumo_select, '/jquery.sumoselect.min.js')}" /> 
+
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+
+    <style type="text/css">
+        .arrowCloseStyle {
+            background: transparent url('/img/alohaSkin/twisty_sprite.png') 0 0 no-repeat;
+        }
+
+        .arrowOpenStyle {
+            background: transparent url('/img/alohaSkin/twisty_sprite.png') 0 -11px no-repeat;
+        }
+    </style>
+
+    <apex:form >
+        <apex:pageMessages id="pageMessages"/>
+
+        <apex:actionFunction name="filterRisks" action="{!reloadRisks}" reRender="risksPanelId, pageMessages,buttonsIds" />
+        <apex:actionFunction name="editActionOwners" action="{!editActionOwners}" reRender="risksPanelId, pageMessages, buttonsIds" >
+            <apex:param name="itemToEdit" value="" assignTo="{!itemToEdit}"/>
+        </apex:actionFunction>
+
+        <apex:pageBlock >
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back" styleClass="btn-add-row btn-page-block" action="{!goBack}" immediate="true"/>
+            </apex:outputPanel> <br />
+
+            <div class="header header-grad">Risk Assessment Tool</div>
+
+            <c:PhaseProgressBarStatic value="{!project.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isActivePhase="{!Right(project.Phase__c, 1)}" isPhase="true" parentRecordId="{!project.Id}"/>
+
+            <c:ProjectInformation project="{!project}"/>
+
+            <apex:image id="theImage" url="/s.gif" 
+                        onclick="$('#helpText').toggle(); if ($(this).hasClass('arrowCloseStyle')) { $(this).removeClass('arrowCloseStyle'); $(this).addClass('arrowOpenStyle'); } else { $(this).removeClass('arrowOpenStyle'); $(this).addClass('arrowCloseStyle'); }" 
+                        styleClass="arrowCloseStyle" style="cursor:pointer; width: 11px; height: 11px;"/>
+            <h3 style="font-size: 1.1em;">Description<span class="titleSeparatingColon">:</span></h3>
+
+            <div style="font-size: 15px; display: none; padding-top: 8px;" id="helpText">
+                Add the risks of the decision or alternative by entering a name and description. Indicate the Risk Type (e.g. market, revenue). Select the Impact and Likelihood of the risk. The Risk Result will populate from the selected Impact and Likelihood. Enter Actions and Action Owners for each risk.
+                <br /><br />
+                Once a Risk has been submitted, select the Name of the risk to view the resulting risk matrix. Changes may be made on the matrix directly.
+            </div>
+
+            <apex:outputPanel id="risksPanelId" layout="block" style="padding-top: 8px;">
+                <apex:outputLabel value="Decision/Alternative " styleClass="label"  style="font-size: 14px; font-weight: bold;" />
+                <apex:selectList value="{!selectedFilter}" size="1" styleClass="form-control" onchange="filterRisks(); ">
+                   <apex:selectOptions value="{!filters}" />
+                </apex:selectList>
+
+                <table class="tasksTable" id="tableId">
+                    <thead>
+                        <tr>
+                            <th style="display: none;"></th>
+                            <th width="7%">Name</th>
+                            <th width="12%">Decision/Alternative</th>
+                            <th width="15%">Description</th>
+                            <th width="7%">Risk Type</th>
+                            <th width="10%">Impact</th>
+                            <th width="10%">Likelihood</th>
+                            <th width="6%">Risk Result</th>
+                            <th width="10%">Actions</th>
+                            <th width="10%">Action Owners</th>
+                            <th width="10%">Date Added</th>
+                            <th width="1%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!riskWrappers}" var="row" >
+                            <apex:inlineEditSupport event="ondblclick" resetFunction="resetInlineEdit" hideOnEdit="newActId" showOnEdit="submitId, saveAndNewId"/>
+                            <tr>
+                                <td style="display: none;">{!row.index}</td>
+                                <td>
+                                    <apex:outputLink value="/apex/RiskAssessmentDetails?id={!row.sObjectItem['Id']}" rendered="{!row.sObjectItem['Id'] != null}">
+                                        <apex:outputField value="{!row.sObjectItem['Name']}" />
+                                    </apex:outputLink>
+                                    <apex:inputField value="{!row.sObjectItem['Name']}" rendered="{!row.sObjectItem['Id'] == null}" required="true"/>
+                                </td>
+                                <td>
+                                    <apex:outputText value="{!IF(row.sObjectItem['Project__c'] != null, 'Decision: ', 'Alternative: ')}" />
+                                    <apex:outputLink value="/{!row.sObjectItem['Project__r.Id']}" rendered="{!row.sObjectItem['Project__c']!=null}" target="_blank">{!row.sObjectItem['Project__r.Name']}</apex:outputLink>
+                                    <apex:outputLink value="/{!row.sObjectItem['Alternative__r.Id']}" rendered="{!row.sObjectItem['Alternative__c']!=null}" target="_blank">{!row.sObjectItem['Alternative__r.Name']}</apex:outputLink>
+
+                                    <apex:outputField value="{!row.sObjectItem['Project__c']}"     rendered="{!AND(row.sObjectItem['Id'] == null, row.sObjectItem['Project__c'] != null)}"/>
+                                    <apex:outputField value="{!row.sObjectItem['Alternative__c']}" rendered="{!AND(row.sObjectItem['Id'] == null, row.sObjectItem['Project__c'] == null)}"/>
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Description__c']}" rendered="{!row.sObjectItem['Id'] != null}" /> 
+                                    <apex:inputField value="{!row.sObjectItem['Description__c']}"  rendered="{!row.sObjectItem['Id'] == null}" />             
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Risk_Type__c']}" rendered="{!row.sObjectItem['Id'] != null}"/> 
+                                    <apex:inputField value="{!row.sObjectItem['Risk_Type__c']}"  rendered="{!row.sObjectItem['Id'] == null}"/>                        
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Impact__c']}" rendered="{!row.sObjectItem['Id'] != null}"/> 
+                                    <apex:inputField value="{!row.sObjectItem['Impact__c']}"  rendered="{!row.sObjectItem['Id'] == null}" required="true"/>                        
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Likelihood__c']}" rendered="{!row.sObjectItem['Id'] != null}"/> 
+                                    <apex:inputField value="{!row.sObjectItem['Likelihood__c']}"  rendered="{!row.sObjectItem['Id'] == null}" required="true"/>                        
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Risk_Result__c']}" rendered="{!row.sObjectItem['Id'] != null}"/>                       
+                                </td>
+                                <td>
+                                    <apex:outputField value="{!row.sObjectItem['Actions__c']}" rendered="{!row.sObjectItem['Id'] != null}"/> 
+                                    <apex:inputField value="{!row.sObjectItem['Actions__c']}"  rendered="{!row.sObjectItem['Id'] == null}"/>                        
+                                </td>
+                                 <td ondblclick="editActionOwners({!row.index});">
+
+                                    <apex:repeat value="{!row.sObjectItem['Risk_Owners__r']}" var="owner" rendered="{!row.sObjectItem['Id'] != null && !row.isEditMode}" id="selectedOwnersId">
+                                        <a target="_blank" id="userLink" href="/{!owner.User__c}">{!owner.User__r.Name}</a> <br />
+                                    </apex:repeat> 
+
+                                    <apex:selectList value="{!selectedActionOwnersToRisk[row.index]}" multiselect="true" styleClass="{! IF(userOptions.size > 1, 'testSelAll', 'testNoSelAll') }" rendered="{!row.isEditMode}" id="userOptionsId">
+                                        <apex:selectOptions value="{!userOptions}"/>
+                                    </apex:selectList>                        
+                                </td>
+                                <td>
+                                    <apex:outputText value="{0,date,dd'/'MM'/'yyyy}" >
+                                        <apex:param value="{!IF(row.sObjectItem['Id'] == null, NOW(), row.sObjectItem['CreatedDate'])}" /> 
+                                    </apex:outputText>                        
+                                </td>
+                                <td>
+                                    <apex:commandLink action="{!openPopup}" reRender="pageMessages, cancelpopup" immediate="true">
+                                        <apex:image value="/img/func_icons/remove12_on.gif" width="15" height="15" title="Remove Risk"/>
+                                        <apex:param name="itemToDelete" value="{!row.index}" assignTo="{!itemToDelete}"/>
+                                    </apex:commandLink>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </tbody>
+                </table>
+                <script>
+                    $(document).ready(function() {
+                        $('[id$="tableId"]').dataTable();
+                    });
+
+                    $('.testSelAll').SumoSelect({ selectAll: true });
+                    $('.testNoSelAll').SumoSelect({ selectAll: false });      
+                </script> 
+            </apex:outputPanel>
+
+            <apex:outputPanel layout="block" id="buttonsIds">
+                <apex:commandButton value="Add Risk" styleClass="btn-add-row btn-page-block" id="newActId" action="{!addRow}" reRender="risksPanelId, pageMessages, buttonsIds" 
+                disabled="{!!AND(displayAddRow, selectedFilter != 'All')}" style="{!IF((!AND(displayAddRow, selectedFilter != 'All')), 'background: #dddddd !important;', '')}"
+                title="{!IF((selectedFilter == 'All'), 'Select Decision/Alternative', '')}"/>
+                <apex:commandButton value="Save" styleClass="btn-add-row btn-page-block" action="{!submit}" id="submitId" reRender="risksPanelId, pageMessages, buttonsIds" 
+                style="{!IF((displaySubmit), '', 'display: none;')}" onclick="$('#tableId').click();"/>
+                <apex:commandButton value="Save and New" styleClass="btn-add-row btn-page-block" action="{!submitAndAddRow}" id="saveAndNewId" reRender="risksPanelId, pageMessages, buttonsIds" 
+                style="{!IF((displaySubmit), '', 'display: none;')}" onclick="$('#tableId').click();"/>
+                <br />
+                <apex:commandButton value="Back" styleClass="btn-add-row btn-page-block" action="{!goBack}" immediate="true"/>
+            </apex:outputPanel> 
+
+        </apex:pageBlock>
+
+        <!-- Start Pop-up -->
+        <apex:outputPanel id="cancelpopup" >
+            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+            <apex:outputPanel styleClass="innerPopup" layout="block"  rendered="{!displayPopUp}">
+                <table>
+                    <tr>
+                        <td>
+                            <apex:commandlink action="{!closePopup}" style="float:right;overflow:hidden;width:17px" rerender="pageMessages, cancelpopup" immediate="true">
+                                <apex:image value="/img/func_icons/util/dialogClose16.gif" style="float:right;display:block;" />
+                            </apex:commandLink>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding:10px 10px 5px 10px; ">Do you really want to remove Risk?</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding-bottom:10px;">
+                            <apex:commandbutton value="Remove" action="{!deleteRisk}" rerender="risksPanelId, pageMessages, cancelpopup, buttonsIds" styleClass="btn-add-row btn-page-block" immediate="true"/>
+                            <apex:commandbutton value="Cancel" action="{!closePopup}" rerender="pageMessages, cancelpopup" styleClass="btn-add-row btn-page-block" immediate="true"/>
+                        </td>
+                    </tr>
+                </table>
+            </apex:outputPanel>
+        </apex:outputPanel>
+        <!-- End Pop-up --> 
+
+    </apex:form>
+</apex:page>

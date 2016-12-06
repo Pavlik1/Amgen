@@ -1,0 +1,12 @@
+<apex:page standardController="Project__c">
+	<apex:pageBlock >
+		<apex:pageBlockSection title="Decision-Making in Action" columns="1" >
+			<apex:include pageName="DecisionMakingActor"/>
+			<apex:include pageName="DecisionMakingAction"/>
+		</apex:pageBlockSection>
+
+		<apex:pageBlockSection title="Decision-Making Tips" columns="1" >
+			<apex:include pageName="ProjectTechniques"/>
+		</apex:pageBlockSection>
+	</apex:pageBlock>
+</apex:page>

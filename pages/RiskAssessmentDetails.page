@@ -1,0 +1,196 @@
+<apex:page controller="RiskAssessmentDetailsController" title="Risk Assessment Details" tabStyle="Project__c">
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.js')}" /> 
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+    <apex:form >
+        <apex:pageMessages id="pageMessages"/>
+
+        <main class="risk-assess-tool">
+            <apex:pageBlock id="pbId">
+                <apex:outputPanel layout="block">
+                    <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}"/>
+                    <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" 
+                    onclick="passStringToController(document.querySelector('.selected-likelihood').textContent, document.querySelector('.selected-impact').textContent); return false;"/>
+                </apex:outputPanel> <br />
+
+                <div class="header header-grad">Risk Assessment Tool</div>
+
+                <c:PhaseProgressBarStatic value="{!project.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isActivePhase="{!Right(project.Phase__c, 1)}" isPhase="true" parentRecordId="{!project.Id}"/>
+                
+                <c:ProjectInformation project="{!project}"/>
+
+                <c:RiskInformation risk="{!risk}" id="riskInformId"/>
+
+                <section class="section">
+                    <span class="counter">1</span>
+                    <div class="content">
+                        <h3>Identify opportunity and option with clear benefits and impacts.</h3>
+                    </div>
+                </section>
+                <section class="section">
+                    <span class="counter">2</span>
+                    <div class="content">
+                        <h3>Assess risk(s) and determine actions.</h3>
+                        <apex:outputPanel id="riskTable">
+                            <table class="risk-table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3"></th>
+                                        <th class="primary" colspan="5">Impact</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3"></th>
+                                        <apex:repeat value="{!impactIndexes}" var="impact">
+                                            <th class="info-dark" id="impact{!impact.Impact_Value__c}" onclick="setStyle(this.id, false);">{!impact.Impact__c}</th>
+                                        </apex:repeat>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3"></th>
+                                        <apex:repeat value="{!impactIndexes}" var="impact">
+                                            <th>{!impact.Impact_Value__c}</th>
+                                        </apex:repeat>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <td rowspan="6" class="primary" style="width: 66px;"><span class="t-vertical">Likelihood</span></td>
+                                    <apex:repeat value="{!likelihoodIndexes}" var="likelihood" >
+                                        <tr>
+                                            <td class="info-light" id="likelihood{!likelihood.Likelihood_Value__c}" onclick="setStyle(this.id, true);" >
+                                                {!likelihood.Likelihood__c}
+                                            </td>
+                                            <td>{!likelihood.Likelihood_Value__c}</td>
+                                            <apex:repeat value="{!riskLevelRulesToLikelihood[likelihood.Likelihood__c]}" var="risklevel">
+                                                <td class="{!IF(risklevel.Risk_Level__c = 'High/Critical', 'High', risklevel.Risk_Level__c)}" 
+                                                id="likelihood{!risklevel.Likelihood_Value__c}-impact{!risklevel.Impact_Value__c}" onclick="setStyleBasedOnCell(this.id);">
+                                                    {!risklevel.Risk_Level__c} 
+                                                </td>
+                                            </apex:repeat>
+                                        </tr>
+                                    </apex:repeat>
+                                </tbody>
+    
+                                <tbody class="risk-def">
+                                    <tr style="height: 20px"></tr>
+                                    <tr>
+                                        <td colspan="3" class="Low">Low</td>
+                                        <td colspan="5" class="def info-light t-left">Take these risks.</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="Medium">Medium</td>
+                                        <td colspan="5" class="def info-light t-left">Be thoughtful about taking these risks, weather to mitigate them and/or create contingency plans.</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="High">High</td>
+                                        <td colspan="5" class="def info-light t-left">Mitigation and/or contingency plans expected.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </apex:outputPanel>
+                    </div>
+                </section>
+                <section class="section">
+                    <span class="counter">3</span>
+                    <div class="content">
+                        <h3>Update and refresh risk assessment periodically</h3>
+                        <p class="info">Remember to establish review points, decision criteria, and exit strategies.</p>
+                    </div>
+                </section> <br />
+
+                <apex:outputPanel layout="block">
+                    <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}"/>
+                    <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" 
+                    onclick="passStringToController(document.querySelector('.selected-likelihood').textContent, document.querySelector('.selected-impact').textContent); return false;"/>
+                </apex:outputPanel> 
+
+            </apex:pageBlock>
+        </main>
+
+        <apex:actionFunction name="passStringToController" action="{!submit}" rerender="riskInformId, pageMessages">
+            <apex:param name="p1" value="" assignTo="{!risk.Likelihood__c}" />
+            <apex:param name="p2" value="" assignTo="{!risk.Impact__c}" />
+        </apex:actionFunction>
+
+        <apex:inputHidden value="{!risk.Likelihood__c}" id="likelihoodValue" />
+    </apex:form>
+    <script>
+        var prevSelectedLikelihood, prevSelectedImpact, prevSelectedCell;
+        
+        $(document).ready(function(){
+            setTableStyle();
+        });
+        
+        function setTableStyle() {
+            var selectedCell = $('#'+ 'likelihood' + '{!risk.Likelihood_Value__c}' + '-impact' + '{!risk.Impact_Value__c}');
+            selectedCell.addClass('selected-cell'); 
+
+            var selectedImpact = $('#impact{!risk.Impact_Value__c}');
+            selectedImpact.addClass('selected-impact');
+
+            var selectedLikelihood = $('#likelihood{!risk.Likelihood_Value__c}');
+            selectedLikelihood.addClass('selected-likelihood');
+            
+            prevSelectedImpact     = selectedImpact;
+            prevSelectedLikelihood = selectedLikelihood;
+            prevSelectedCell       = selectedCell;
+        }
+
+        function setStyle(clicked_id, isLikelihood) {
+            if (isLikelihood) {
+                setLikelihoodStyle(clicked_id);
+            } else {
+                setImpactStyle(clicked_id);
+            }
+            
+
+            setCellStyle(prevSelectedLikelihood[0].id + '-' + prevSelectedImpact[0].id);
+
+        }
+
+        function setCellStyle(cellId) {
+            if (null != prevSelectedCell && cellId != prevSelectedCell[0].id) {
+                var selectedCell = $('#'+ cellId);
+
+                selectedCell.addClass('selected-cell');
+                prevSelectedCell.removeClass('selected-cell');  
+
+                prevSelectedCell = selectedCell;
+            }
+        }
+
+        function setLikelihoodStyle(likelihoodId) {
+            if (likelihoodId != prevSelectedLikelihood[0].id) {
+                var selectedItem = $('#'+likelihoodId);
+
+                selectedItem.addClass('selected-likelihood');
+                prevSelectedLikelihood.removeClass('selected-likelihood');
+
+                prevSelectedLikelihood = selectedItem;
+            }
+
+        }
+
+        function setImpactStyle(impactId) {
+            if (null != prevSelectedImpact && impactId != prevSelectedImpact[0].id) {
+                var selectedItem = $('#'+impactId);
+            
+                selectedItem.addClass('selected-impact');
+                prevSelectedImpact.removeClass('selected-impact');
+
+                prevSelectedImpact = selectedItem;
+            }
+        }
+
+        function setStyleBasedOnCell(cellId) {
+            setCellStyle(cellId);
+
+            var relatedIds = cellId.split('-');
+            for (var i in relatedIds) {
+                if (relatedIds[i].includes('likelihood')) {
+                    setLikelihoodStyle(relatedIds[i]);
+                } 
+                if (relatedIds[i].includes('impact')) {
+                    setImpactStyle(relatedIds[i]);
+                }
+            }
+        } 
+    </script>
+</apex:page>

@@ -1,0 +1,69 @@
+<apex:page standardController="Project__c" showHeader="false" sidebar="false">
+	<style>
+		html, body {
+			margin: 0;
+		}
+		.wrapper {
+			/*padding: 0 50px;	*/
+		}
+		.actor {
+			display: block;
+			height: 225px;
+			float: left;
+			color: #fff;
+			font-size: 20px;
+			width: 50%;
+			text-align: center;
+		}
+		.wrapper .actor.d-maker {
+			background: #5a4;
+		}
+		.wrapper .actor.a-giver {
+			background: #e94;
+		}
+		.wrapper .actor.stackholder {
+			background: #29c;
+		}
+		.wrapper .actor.sponsor {
+			background: #fe1;
+		}
+		.actor .short-name {
+			text-align: center;
+			font-size: 62px;
+			margin: 10px 0 5px;
+			display: block;
+			font-weight: 700;
+		}
+		.actor .name {
+			display: block;
+			font-size: 24px;
+		}
+		.actor .description {
+			padding: 0 10px;
+			font-size: 15px;
+			display: inline-block;
+		}
+	</style>
+	<main class="wrapper">
+		<a href="" class="actor d-maker">
+			<span class="short-name">D</span>
+			<span class="name">Decision Maker</span>
+			<p class="description">Makes and communicates with the decision; accountable for impact on business</p>
+		</a>
+		<a href="" class="actor a-giver">
+			<span class="short-name">A</span>
+			<span class="name">Advice Giver(s)</span>
+			<p class="description">Provide(s) input, data, and advice based on expertise and experiace</p>
+		</a>
+		<a href="" class="actor stackholder">
+			<span class="short-name">I</span>
+			<span class="name">Informed Stakeholder(s)</span>
+			<p class="description">Execute(s) the decision or need(s) to be informed after a decision has been made</p>
+		</a>
+		<a href="" class="actor sponsor">
+			<span class="short-name">S</span>
+			<span class="name">Sponsor</span>
+			<p class="description"></p>
+		</a>
+	</main>
+</apex:page>

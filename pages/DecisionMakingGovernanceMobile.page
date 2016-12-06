@@ -1,0 +1,163 @@
+<apex:page controller="DecisionMakingGovernanceController" title="Decision-Making Governance Tool" docType="html-5.0" applyHTMLTag="true" tabStyle="Project__c">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+
+    <apex:form >
+        <apex:pageMessages id="pageMessages"/>
+        <apex:pageBlock >
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" immediate="true"/>
+                <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" action="{!submit}"/>
+            </apex:outputPanel> <br />
+
+            <div class="header header-grad">Decision-Making Governance Tool(DMGT)</div>
+
+            <c:PhaseProgressBarStatic value="{!project.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isActivePhase="{! Right(project.Phase__c, 1)}" isPhase="true" parentRecordId="{!project.Id}"/>
+
+            <div><b>Note:</b> <span class="label">This tool is designed to be used by the sponsor and the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>) to establish absolute clarity on the purpose and specidics of a project before it begins</span></div>
+
+            <c:ProjectInformation project="{!project}" dmgtTool="true"/>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" for="decision-recommendation" value="What is the decision/recommendation that needs to be made?"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:inputTextarea id="decision-recommendation" value="{!project.Decision_Recommendation__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%"><apex:outputLabel styleClass="label" for="decision-impact" value="How does this decision impact the organization?"/></td>
+                            <td width="30%" style="text-align: left;"><apex:inputField styleClass="form-control" id="decision-impact" value="{!project.Decision_impact__c}"/></td>
+                            <td width="30%"></td>
+                        </tr>
+
+                        <tr>
+                            <td width="40%" style="padding-top: 5px;"><apex:outputLabel styleClass="label" for="risk-associated" value="What is the level of risk associated with this decision?"/></td>
+                            <td width="30%" style="text-align: left;padding-top: 5px;"><apex:inputField styleClass="form-control" id="risk-associated" value="{!project.Risk_Associated__c}"/></td>
+                            <td width="30%" style="padding-top: 5px;"><apex:outputLink value="RiskAssessmentTool?id={!project.Id}&retURL=apex/DecisionMakingGovernance?id={!project.Id}" styleClass="label" >Risk Assessment Tool</apex:outputLink></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" for="anticipate-risk" value="What are the anticipated challenges and potential opportunities?"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:inputTextarea id="anticipate-risk" value="{!project.Anticipated_Risk_Challenges__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <apex:actionRegion >
+                <fieldset style="margin: 10px 0;">
+                    <apex:outputPanel id="funding-table">
+                        <apex:outputLabel style="font-size: 15px;" styleClass="label" value="Who owns the funding for the decision? Will they play a role in the decision-making process?"/> 
+                        <apex:pageBlockTable styleClass="table" value="{!fundingRoles}" var="item">
+                            <apex:column headerClass="tableHeader" headerValue="Funding Owner">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Contact__c']}" />
+                            </apex:column>
+
+                            <apex:column headerClass="tableHeader" headerValue="Role">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Role__c']}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addFundingRole}" reRender="pageMessages, funding-table" immediate="true"/>
+                    </apex:outputPanel> 
+                </fieldset>
+            </apex:actionRegion>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="50%" class="label">
+                                Sponsor(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_s.png')}"/>) / Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>)
+                                <apex:outputLabel value="Communication Expectations"/>
+                            </td>
+                            <td width="50%" style="text-align: left;"><apex:inputField styleClass="form-control" value="{!project.Communication_Expectations__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <apex:actionRegion >
+                <fieldset style="margin: 10px 0;">
+                    <apex:outputPanel styleClass="decision-due-date-table" id="decision-due-date-table">
+                        <apex:outputLabel style="font-size: 15px;" styleClass="label" value="Decision Due Date:"/>
+                        <apex:pageBlockTable styleClass="table" value="{!decisionDueDate}" var="item">
+                            <apex:column headerClass="tableHeader" headerValue="Milestones">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Milestones_Deliverables__c']}" required="true"/>
+                            </apex:column>
+
+                            <apex:column headerClass="tableHeader" headerValue="Date">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Date__c']}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addDecisionDueDate}" reRender="pageMessages, decision-due-date-table" immediate="true"/>
+                    </apex:outputPanel>
+                </fieldset>
+            </apex:actionRegion>
+
+
+            <apex:actionRegion >
+                <fieldset style="margin: 10px 0;">
+                    <apex:outputPanel id="team-roles-table">
+                        <apex:outputLabel style="font-size: 15px;" styleClass="label" value="Team Roles and Responsibilities ">
+                            (<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_a.png')}"/>)
+                        </apex:outputLabel>
+
+                        <apex:pageBlockTable styleClass="table" value="{!teamRolesList}" var="item">
+                            <apex:column headerClass="tableHeader" headerValue="Name">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Contact__c']}" />
+                            </apex:column>
+
+                            <apex:column headerClass="tableHeader" headerValue="Title/Responsibility">
+                                <apex:outputText styleClass="label" value="{!item.additionalInfo}" />
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addTeamRoles}" reRender="pageMessages, team-roles-table" immediate="true"/>
+                    </apex:outputPanel>
+                </fieldset>
+            </apex:actionRegion>
+
+
+            <apex:actionRegion id="decisionImpactId">
+                <fieldset style="margin: 10px 0;">
+                    <apex:outputPanel id="decision-impact-table">
+                        <apex:outputLabel styleClass="label" style="font-size: 15px;" value="Who will this decision impact (I's)?"/>
+                        <apex:pageBlockTable styleClass="table" value="{!decisionImpactList}" var="item">
+                            <apex:column headerClass="tableHeader" headerValue="Function">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Impacted_Functions__c']}" required="true"/>
+                            </apex:column>
+
+                            <apex:column headerClass="tableHeader" headerValue="Inform or Implement">
+                                <apex:inputField styleClass="form-control" value="{!item.sObjectItem['Actions__c']}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addDecisionImpact}" reRender="pageMessages, decision-impact-table" immediate="true"/>
+                    </apex:outputPanel>
+                </fieldset>
+            </apex:actionRegion>
+
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" immediate="true"/>
+                <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" action="{!submit}"/>
+            </apex:outputPanel>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,56 @@
+<apex:component >
+	<apex:attribute name="project" required="true" type="Project__c" description="Project record"/>
+    <apex:attribute name="dmgtTool" required="false" type="Boolean" default="false" description="Is used on DMGT tool"/>
+
+	<fieldset>
+        <apex:pageBlockSection columns="2">
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="name" value="Project"/>
+                <apex:outputPanel >
+                    <apex:outputField id="name" value="{!project.Name}" rendered="{!project.Id != null}"/>
+                    <apex:inputField value="{!project.Name}" rendered="{!project.Id == null}" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="decision" value="Decision"/>
+                <apex:outputField id="decision" value="{!project.Decision_Recommendation__c}"/>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel for="dueDate" value="Due date"/>
+                <apex:outputPanel >
+                    <apex:outputField id="dueDate" value="{!project.Due_Date__c}" rendered="{!project.Id != null}"/>
+                    <apex:inputField value="{!project.Due_Date__c}" rendered="{!project.Id == null}" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel >
+                    <apex:outputLabel for="sponsor" value="Sponsor"/>
+                    (<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_s.png')}"/>)
+                </apex:outputPanel>
+                <apex:outputPanel id="sponsor" >
+                    <apex:outputField value="{!project.Sponsor__c}" rendered="{!!dmgtTool}"/>
+                    <apex:inputField value="{!project.Sponsor__c}" rendered="{!dmgtTool}" styleClass="form-control" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+            </apex:pageBlockSectionItem>
+
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel >
+                    <apex:outputLabel for="isDecisionMaker" value="Decision Maker "/>
+                    (<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>)
+                </apex:outputPanel>
+                <apex:outputPanel id="isDecisionMaker" >
+                    <apex:outputField value="{!project.Decision_Maker__c}" rendered="{!!dmgtTool}"/>
+                    <apex:inputField value="{!project.Decision_Maker__c}"  rendered="{!dmgtTool}" styleClass="form-control" required="true"/>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+
+        </apex:pageBlockSection>
+    </fieldset>
+    <br />
+</apex:component>

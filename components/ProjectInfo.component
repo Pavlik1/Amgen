@@ -1,0 +1,52 @@
+<apex:component >
+	<style>
+		.project-name,
+		.project-info {
+			display: inline-block;
+		}
+		.project-name {
+			font-size: 20px;
+			width: 30%;
+			vertical-align: top;
+		}
+		.project-info {
+			width: 65%;
+		}
+		.table-info {
+			border-collapse: collapse;
+			float: right;
+		}
+		.table-info th,
+		.table-info td {
+			border: 1px solid #aaa;
+			text-align: center;
+			padding: 5px 15px;
+		}
+		.table-info th {
+			background: #ededed; 
+		}
+		.table-info td {
+			font-size: 14px;
+		}
+	</style>
+
+	<h2 class="project-name">Some Global Project</h2>
+	<aside class="project-info">
+		<table class="table-info">
+			<thead>
+				<tr>
+					<th>Sponsor</th>
+					<th>Decision Maker</th>
+					<th>Due Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Roman Skurchak</td>
+					<td>Rose Gonzalez</td>
+					<td>01/04/2017</td>
+				</tr>
+			</tbody>
+		</table>
+	</aside>
+</apex:component>

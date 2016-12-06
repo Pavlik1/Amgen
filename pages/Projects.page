@@ -1,0 +1,41 @@
+<apex:page standardController="Project__c">
+	<style>
+		.project {
+		    padding: 20px;
+		    border: 2px solid #aaa;
+		    border-radius: 10px;
+		    margin-bottom: 20px;
+		}
+		.project-description {
+			padding: 10px;
+		}
+	</style>
+	<section class="project">
+		<div class="project-description">
+			<c:ProjectInfo />
+		</div>
+		<c:PhaseProgressBar value="{!Project__c.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c"/>
+		<c:PhaseProgressBar value="{!Project__c.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" isphase="false" controllingField="{!Project__c.Phase__c}"/>
+	</section>
+	<section class="project">
+		<div class="project-description">
+			<c:ProjectInfo />
+		</div>
+		<c:PhaseProgressBar value="{!Project__c.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c"/>
+		<c:PhaseProgressBar value="{!Project__c.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" isphase="false" controllingField="{!Project__c.Phase__c}"/>
+	</section>
+	<section class="project">
+		<div class="project-description">
+			<c:ProjectInfo />
+		</div>
+		<c:PhaseProgressBar value="{!Project__c.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c"/>
+		<c:PhaseProgressBar value="{!Project__c.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" isphase="false" controllingField="{!Project__c.Phase__c}"/>
+	</section>
+	<section class="project">
+		<div class="project-description">
+			<c:ProjectInfo />
+		</div>
+		<c:PhaseProgressBar value="{!Project__c.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c"/>
+		<c:PhaseProgressBar value="{!Project__c.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" isphase="false" controllingField="{!Project__c.Phase__c}"/>
+	</section>
+</apex:page>

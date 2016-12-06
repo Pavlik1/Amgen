@@ -1,0 +1,288 @@
+<apex:page controller="WeightedRankingsMatrixController" title="Weighted Rankings Matrix" tabStyle="Project__c" action="{!openPageAction}">
+    <apex:stylesheet value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/css/jquery.dataTables.min.css')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Jquery_sumo_select, '/sumoselect.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.Jquery_sumo_select, '/jquery.sumoselect.min.js')}" /> 
+
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+    <style type="text/css">
+
+        .Custom4Tab .tertiaryPalette, .individualPalette .Custom4Block .tertiaryPalette, .layoutEdit .individualPalette .Custom4Block .tertiaryPalette {
+            background-color: #5a4;
+        }
+
+        .arrowCloseStyle {
+            background: transparent url('/img/alohaSkin/twisty_sprite.png') 0 0 no-repeat;
+        }
+
+        .arrowOpenStyle {
+            background: transparent url('/img/alohaSkin/twisty_sprite.png') 0 -11px no-repeat;
+        }
+
+    </style>
+    <apex:form >
+        <apex:pageMessages id="pageMessages"/>
+
+        <apex:actionFunction name="reloadVotesTable" reRender="pageMessages, votesTableId" />
+
+        <apex:actionFunction name="editWeighting" action="{!editWeighting}" reRender="pageMessages, votesTableId" >
+            <apex:param name="criteriaIndex" value="" assignTo="{!criteriaIndex}"/>
+        </apex:actionFunction>
+
+        <apex:actionFunction name="changeWeighting" action="{!changeWeightingValue}" reRender="pageMessages, votesTableId" >
+            <apex:param name="criteriaId"     value="" assignTo="{!editedCriteriaId}"/>
+            <apex:param name="weightingValue" value="" assignTo="{!weightingValue}"/>
+        </apex:actionFunction>
+
+        <apex:pageBlock mode="inlineEdit">
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" />
+            </apex:outputPanel> <br />
+
+            <div class="header header-grad">Weighted Rankings Matrix</div>
+
+            <c:PhaseProgressBarStatic value="{!project.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isActivePhase="{!Right(project.Phase__c, 1)}" isPhase="true" parentRecordId="{!project.Id}"/>
+
+            <c:ProjectInformation project="{!project}"/>
+
+            <apex:image id="theImage" url="/s.gif" 
+                        onclick="$('#helpText').toggle(); if ($(this).hasClass('arrowCloseStyle')) { $(this).removeClass('arrowCloseStyle'); $(this).addClass('arrowOpenStyle'); } else { $(this).removeClass('arrowOpenStyle'); $(this).addClass('arrowCloseStyle'); }" 
+                        styleClass="arrowCloseStyle" style="cursor:pointer; width: 11px; height: 11px;"/>
+            <h3 style="font-size: 1.1em;">Description<span class="titleSeparatingColon">:</span></h3>
+
+            <div style="font-size: 15px; display: none; padding-top: 8px;" id="helpText">
+                Add alternatives and the criteria that will be used to choose the best alternative. Assign weight to the criteria to measure strength or magnitude. The Weighted Ranking Matrix will populate once alternatives and criteria are submitted. Enter the total number of votes for each alternative and criteria.
+            </div>
+
+            <!-- Start Alternatives Section -->
+            <fieldset style="margin: 10px 0;">
+                <apex:pageBlockSection title="Alternatives" columns="1" >
+                    <apex:outputPanel layout="block" id="alternativeTableId" >
+                        <table class="tasksTable" id="alternTableId">
+                            <thead>
+                                <th style="display: none;"></th>
+                                <th width="25%">Title</th>
+                                <th width="40%">Description</th>
+                                <th width="20%">Risk Score</th>
+                                <th width="10%">Date Added</th>
+                                <th width="5%"></th>
+                            </thead>
+
+                            <tbody>
+                                <apex:variable var="altIndex" value="{!0}"  />
+
+                                <apex:repeat value="{!alternatives}" var="alt">
+                                    <apex:inlineEditSupport event="ondblclick" resetFunction="resetInlineEdit" />
+                                    <tr>
+                                        <td style="display: none;">{!altIndex}</td>
+                                        <td>
+                                            <apex:outputLink value="/{!alt.Id}" target="_blank" rendered="{!null != alt.Id}"> {!alt.Name} </apex:outputLink>
+                                            <apex:inputField value="{!alt.Name}" rendered="{!null == alt.Id}" required="true"/>
+                                        </td>
+                                        <td>
+                                            <apex:outputField value="{!alt.Description__c}" rendered="{!null != alt.Id}"/>
+                                            <apex:inputField value="{!alt.Description__c}" rendered="{!null == alt.Id}"/>  
+                                        </td>
+                                        <td>
+                                            <apex:outputLink value="RiskAssessmentTool?id={!project.Id}&altId={!alt.Id}&retURL=apex/WeightedRankingsMatrix?id={!project.Id}" rendered="{!null != alt.Id}">{!alt.Risk_Score__c} 
+                                            </apex:outputLink>
+                                        </td>
+                                        <td>
+                                            <apex:outputText value="{0,date,dd'/'MM'/'yyyy}" >
+                                                <apex:param value="{!IF(alt.Id == null, NOW(), alt.CreatedDate)}" /> 
+                                            </apex:outputText>   
+                                        </td>
+                                        <td>
+                                            <apex:commandLink action="{!openPopup}" reRender="pageMessages, cancelpopup" immediate="true">
+                                                <apex:image value="/img/func_icons/remove12_on.gif" width="15" height="15" title="Remove Alternative"/>
+                                                <apex:param name="itemToDelete" value="{!altIndex}" assignTo="{!itemToDelete}"/>
+                                                <apex:param name="removeCriteria" value="false" assignTo="{!removeCriteria}"/>
+                                            </apex:commandLink>
+                                        </td>
+                                    </tr>
+
+                                    <apex:variable value="{!altIndex+1}" var="altIndex"/>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addAlternative}"     reRender="pageMessages,alternativeTableId"/>
+                        <apex:commandButton styleClass="btn-add-row" value="Submit"  action="{!submitAlternatives}" reRender="pageMessages, alternativeTableId, votesTableId" 
+                        onclick="$('#alternTableId').click();"/>
+
+                        <script>
+                            $(document).ready(function() {
+                                $('[id$="alternTableId"]').dataTable();
+                            });     
+                        </script> 
+
+                    </apex:outputPanel>
+                </apex:pageBlockSection> 
+            </fieldset><br />
+            <!-- End Alternatives Section -->
+
+            <!-- Start Criterias Section -->
+            <fieldset style="margin: 10px 0;">
+                <apex:pageBlockSection title="Criterias" columns="1" >
+                    <apex:outputPanel layout="block" id="criteriasId" >
+                        <table class="tasksTable" id="criteriasTableId">
+                            <thead>
+                                <th style="display: none;"></th>
+                                <th width="25%">Title</th>
+                                <th width="50%">Weighting</th>
+                                <th width="20%">Date Added</th>
+                                <th width="5%"></th>
+                            </thead>
+
+                            <tbody>
+                                <apex:variable var="criteriaIndex" value="{!0}"  />
+
+                                <apex:repeat value="{!criterias}" var="crit">
+                                    <apex:inlineEditSupport event="ondblclick" resetFunction="resetInlineEdit" />
+                                    <tr>
+                                        <td style="display: none;">{!criteriaIndex}</td>
+                                        <td>
+                                            <apex:outputLink value="/{!crit.Id}" target="_blank" rendered="{!null != crit.Id}"> {!crit.Name} </apex:outputLink>
+                                            <apex:inputField value="{!crit.Name}" rendered="{!null == crit.Id}" required="true"/>
+                                        </td>
+                                        <td>
+                                            <apex:outputField value="{!crit.Weighting__c}" rendered="{!null != crit.Id}"/>
+                                            <apex:inputField value="{!crit.Weighting__c}" rendered="{!null == crit.Id}"/>  
+                                        </td>
+                                        <td>
+                                            <apex:outputText value="{0,date,dd'/'MM'/'yyyy}" >
+                                                <apex:param value="{!IF(crit.Id == null, NOW(), crit.CreatedDate)}" /> 
+                                            </apex:outputText>   
+                                        </td>
+                                        <td>
+                                            <apex:commandLink action="{!openPopup}" reRender="pageMessages, cancelpopup" immediate="true">
+                                                <apex:image value="/img/func_icons/remove12_on.gif" width="15" height="15" title="Remove Criteria"/>
+                                                <apex:param name="criteriaIndex" value="{!criteriaIndex}" assignTo="{!criteriaIndex}"/>
+                                                <apex:param name="removeCriteria" value="true" assignTo="{!removeCriteria}"/>
+                                            </apex:commandLink>
+                                        </td>
+                                    </tr>
+
+                                    <apex:variable value="{!criteriaIndex+1}" var="criteriaIndex"/>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+
+                        <apex:commandButton styleClass="btn-add-row" value="Add Row" action="{!addCriteria}"     reRender="criteriasId,pageMessages"/>
+                        <apex:commandButton styleClass="btn-add-row" value="Submit"  action="{!submitCriterias}" reRender="criteriasId,votesTableId,pageMessages" onclick="$('#criteriasTableId').click();"/>
+
+                        <script>
+                            $(document).ready(function() {
+                                $('[id$="criteriasTableId"]').dataTable();
+                            });     
+                        </script> 
+
+                    </apex:outputPanel>
+                </apex:pageBlockSection> 
+            </fieldset><br />
+            <!-- End Criterias Section -->
+
+            <!-- Start Weighted Rankings Matrix Section -->
+            <apex:outputPanel layout="block" id="votesTableId" >
+                <table class="votes-Table">
+                    <thead>
+                        <tr>
+                            <th colspan="3"></th>
+                            <th colspan="{!(criterias.size*2)+1}" class="header1">Decision Criteria</th>
+                        </tr>
+                        <tr>
+                            <th colspan="3"></th>
+                            <apex:repeat value="{!criteriaWrappers}" var="row">
+                                <th colspan="2" class="header2">{!row.sObjectItem['Name']}</th>
+                            </apex:repeat>
+                            <th colspan="3" rowspan="3" class="header2">Total</th>
+                        </tr>
+                        <tr>
+                            <th colspan="3"></th>
+                            <apex:repeat value="{!criteriaWrappers}" var="row">
+                                <th colspan="2" class="header2" ondblclick="editWeighting({!row.index});">
+                                    <apex:inputField value="{!row.sObjectItem['Weighting__c']}" onchange="changeWeighting('{!row.sObjectItem['Id']}', this.value);" rendered="{!row.isEditMode}" 
+                                    onkeyup="reloadVotesTable();"/> 
+                                    <apex:outputText value="{!row.sObjectItem['Weighting__c']}" rendered="{!!row.isEditMode}" />
+                                </th>
+                            </apex:repeat>
+                        </tr>
+                        <tr>
+                            <th colspan="3"></th>
+                            <apex:repeat value="{!criteriaWrappers}" var="row">
+                                <th class="header2">Votes</th>
+                                <th class="header2">Ranking</th>
+                            </apex:repeat>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <td rowspan="{!alternatives.size+1}" class="primary" ><span class="t-vertical">Alternatives</span></td>
+                        <apex:repeat value="{!alternatives}" var="altern">
+                            <tr style="{!IF((altern.Id == null), 'display: none;', '')}">
+                                <td class="header2" colspan="2"> {!altern.Name} </td>
+
+                                <apex:variable var="total"     value="{!0}"   />
+
+                                <apex:repeat value="{!altern.Participant_Votes__r}" var="vote" >
+                                    <td class="votes"> 
+                                        <apex:inputField value="{!vote.Votes__c}" onchange="reloadVotesTable();"/> 
+                                    </td>
+                                    <td class="ranking">
+                                        {!IF(vote.Votes__c == '', 0, VALUE(vote.Votes__c) * vote.Criteria__r.Weighting__c)}
+                                    
+                                    </td>
+                                    <apex:variable value="{!total + (VALUE(vote.Votes__c) * vote.Criteria__r.Weighting__c)}" var="total"/>  
+                                </apex:repeat>
+
+                                <td class="ranking total">
+                                    <apex:outputText value="{!total}"/> 
+                                </td>
+                            </tr>     
+                        </apex:repeat>
+                    </tbody>
+                </table>
+            </apex:outputPanel><br />
+
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" />
+                <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" action="{!submit}" reRender="pageMessages, votesTableId, criteriasId"/>
+            </apex:outputPanel>
+        </apex:pageBlock>
+        <!-- End Weighted Rankings Matrix Section -->
+
+        <!-- Start Pop-up -->
+        <apex:outputPanel id="cancelpopup" >
+            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+            <apex:outputPanel styleClass="innerPopup" layout="block"  rendered="{!displayPopUp}">
+                <table>
+                    <tr>
+                        <td>
+                            <apex:commandlink action="{!closePopup}" style="float:right;overflow:hidden;width:17px" rerender="pageMessages, cancelpopup" immediate="true">
+                                <apex:image value="/img/func_icons/util/dialogClose16.gif" style="float:right;display:block;" />
+                            </apex:commandLink>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding:10px 10px 5px 10px; ">
+                            <apex:outputLabel value="Do you really want to remove Alternative?" rendered="{!!removeCriteria}"/>
+                            <apex:outputLabel value="Do you really want to remove Criterias?" rendered="{!removeCriteria}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding-bottom:10px;">
+                            <apex:commandbutton value="Remove" action="{!deleteAlternative}" rerender="votesTableId,pageMessages,cancelpopup,alternativeTableId" styleClass="btn-add-row btn-page-block" immediate="true" rendered="{!!removeCriteria}"/>
+                            <apex:commandbutton value="Remove" action="{!deleteCriteria}" rerender="votesTableId,pageMessages,cancelpopup,criteriasId" styleClass="btn-add-row btn-page-block" immediate="true"
+                            rendered="{!removeCriteria}"/>
+
+                            <apex:commandbutton value="Cancel" action="{!closePopup}" rerender="pageMessages,cancelpopup" styleClass="btn-add-row btn-page-block" immediate="true"/>
+                        </td>
+                    </tr>
+                </table>
+            </apex:outputPanel>
+        </apex:outputPanel>
+        <!-- End Pop-up --> 
+
+    </apex:form>
+</apex:page>

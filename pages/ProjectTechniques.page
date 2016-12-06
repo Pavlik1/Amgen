@@ -1,0 +1,110 @@
+<apex:page standardController="Project__c">
+    <style>
+        .action-menu {
+            border-top: 10px solid #ff6873;
+        }
+        .action-menu .section {
+            width: 50%;
+            float: left;
+        }
+        .action-menu .title {
+            display: block;
+            color: #ff6873;
+            background: #fff;
+            /*cursor: pointer;*/
+            padding: 15px;
+            /*width: 100%;*/
+            /*border: 0;*/
+            /*border-top: 1px solid #dce7eb;*/
+            /*border-radius: 0;*/
+            text-align: left;
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+        /*.action-menu .title.active, 
+        .action-menu .title:hover {
+            background: #dce7eb;
+        }*/
+        /*.action-menu .title:after {
+            content: '\02795';
+            font-size: 13px;
+            color: #ff6873;
+            float: right;
+            margin-left: 5px;
+        }
+        .action-menu .title.active:after {
+            content: "\2796";
+        }*/
+        .action-menu .def {
+            color: #30455c;
+            font-size: 13px;
+            padding: 5px 15px 15px 15px;
+            margin: 0;
+            /*margin: 0;*/
+            /*padding: 0;*/
+            /*background-color: white;*/
+            /*max-height: 0;*/
+            /*overflow: auto;*/
+            /*transition: 0.3s ease;*/
+            /*opacity: 0;*/
+        }
+        /*.action-menu .def.show {
+            opacity: 1;
+            min-height: 72px;
+            padding: 18px;
+        }*/
+    </style>
+    <main class="action-menu">
+        <section class="section">
+            <h3 class="title">Cascade the D</h3>
+            <p class="def">Cascading the D involves pushing the decision down to the lowest appropriate level with respect to the impact to the organization and the likelihood of risk occurring.</p>
+
+            <h3 class="title">Weighted Rankings</h3>
+            <p class="def">To use this technique, rank criteria in order from most important to least important. Then, measure the magnitude or strength of the criteria by assigning each team member 100 points across the alternatives by order of importance. This technique allows the decision maker to uncover valuable information.</p>
+
+            <h3 class="title">Frame the Decision</h3>
+            <p class="def">Begin the problem-solving process by making sure you correctly state the problem. To do this, think about the decision statement as the <i>what</i>, <i>why</i>, <i>when</i>, <i>who</i>, and <i>where</i>, but not the <i>how</i>. Framing the decision will help you solve the real problem as opposed to the perceived problem.</p>
+
+            <h3 class="title">Avoid Desire for Consensus</h3>
+            <p class="def">Seeking consensus can impede innovation and hinder the ability to make the best decision.</p>
+
+            <h3 class="title">Seek Disconfirming Information</h3>
+            <p class="def">Disconfirming information is any information that goes against the initially held belief pf the hypothesis. It can be a positive, a negative, or an alternative.</p>
+
+            <h3 class="title">Devil's Advocate</h3>
+            <p class="def">A "devil's advocate" is someone who argues against the cause, not necessarily because they oppose it, but rather to test the validity of the position. The best approach for using this tool os to invite your entire team to play "devil's advocate" while evaluating your option.</p>
+
+            <h3 class="title">Role of Judgement</h3>
+            <p class="def">There is an inverse relationship between the number of facts and the amount of judgement required to make a decision. The fewer facts that exist, the more judgement is required. And, the more facts available, the less judgement needed.</p>
+        </section>
+        <section class="section">
+            <h3 class="title">Avoid Preference for the Status Quo</h3>
+            <p class="def">People generally prefer to maintain the status quo. If you want people to move away from the status quo and change, then focus not on what people will gain from the change, but rather the risk of not going with it.</p>
+
+            <h3 class="title">Escalation of Commitment</h3>
+            <p class="def">Escalation of commitment is the commitment of resource to a course of action that does not produce a return ar may even result in a loss. To avoid this pitfall, establish a systematic process with pre-determined review points, specific decision criteria, and a good exit strategy. This will set the D up to make a better decision because he will continuously be updated with the most current information.</p>
+
+            <h3 class="title">Pros and Cons</h3>
+            <p class="def">When evaluation alternatives, make a list of the positives and then negatives. It's important to list of the positives and then the negatives. It's important to list the positives first as negative thoughts defeat creative thinking.</p>
+
+            <h3 class="title">Avoid Bias</h3>
+            <p class="def">A bias is a particular tendency, trend, inclination, feeling, or opinion, especially one that is preconceived or unreasoned. Some biases are good because they allow us to process new information rapidly through mental shortcuts. But, due to the rapidity and because the process happens unconsciously, our biases are strengthened at the expense of truth.</p>
+
+            <h3 class="title">Private Collection</h3>
+            <p class="def">Private Collection can be used to tap into the knowledge of all team members by asking A's to write down their thoughts before group discussion begins. This method reveals minority perspectives, increases the likelihood of uncovering disconfirming information, and reduces the tendency for team members to agree with the first alternative that seems sufficient.</p>
+        </section>
+    </main>
+
+    <script>
+        // title Menu
+        // var acc = document.getElementsByClassName("title");
+        // var i;
+        // for (i = 0; i < acc.length; i++) {
+        //  acc[i].onclick = function(){
+        //      this.classList.toggle("active");
+        //      this.nextElementSibling.classList.toggle("show");
+        //  }
+        // }
+    </script>
+</apex:page>

@@ -1,0 +1,299 @@
+<apex:page standardcontroller="Project__c" extensions="WizardCont" id="WizardPage" sidebar="false" showChat="false" title="Wizard">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" />
+<script type="text/javascript">
+    var currentStep;
+
+    function goToStep(number) {
+      if( number == null ) { currentStep = {!currentStep}; } else { currentStep = number; }
+      if( currentStep == 1 ) {
+        $('#step1Block').show(); $('#step2Block').hide(); $('#step3Block').hide(); $('#step4Block').hide();
+        $('.step1Normal').hide(); $('.step1Blue').show(); $('.step2Normal').show(); $('.step2Blue').hide();
+        $('.step3Normal').show(); $('.step3Blue').hide(); $('.step4Normal').show(); $('.step4Blue').hide();
+        goToStep1();
+      }
+      if( currentStep == 2 ) {
+        $('#step1Block').hide(); $('#step2Block').show(); $('#step3Block').hide(); $('#step4Block').hide();
+        $('.step1Normal').show(); $('.step1Blue').hide(); $('.step2Normal').hide(); $('.step2Blue').show();
+        $('.step3Normal').show(); $('.step3Blue').hide(); $('.step4Normal').show(); $('.step4Blue').hide();
+        goToStep2();
+      }
+      if( currentStep == 3 ) {
+        $('#step1Block').hide(); $('#step2Block').hide(); $('#step3Block').show(); $('#step4Block').hide();
+        $('.step1Normal').show(); $('.step1Blue').hide(); $('.step2Normal').show(); $('.step2Blue').hide();
+        $('.step3Normal').hide(); $('.step3Blue').show(); $('.step4Normal').show(); $('.step4Blue').hide();
+        goToStep3();
+      }
+      if( currentStep == 4 ) {
+        $('#step1Block').hide(); $('#step2Block').hide(); $('#step3Block').hide(); $('#step4Block').show();
+        $('.step1Normal').show(); $('.step1Blue').hide(); $('.step2Normal').show(); $('.step2Blue').hide();
+        $('.step3Normal').show(); $('.step3Blue').hide(); $('.step4Normal').hide(); $('.step4Blue').show();
+        goToStep4();
+      }
+    }
+
+
+/*
+    var step = '1';
+    function goToStep(number){
+        if( number == null ){
+            number = step;
+        } else {
+            step = number;
+        }
+        var i;
+        for(i=1; 1<=4; i++){
+            if(i==number){
+                console.log('true number = ' + number + ' i = ' + i);
+                document.getElementById("step" + i + "Block").setAttribute("style", "display: block;");
+                console.log('true number = ' + number + ' i = ' + i);
+            }else{
+                console.log('false number = ' + number + ' i = ' + i);
+                document.getElementById("step" + i + "Block").setAttribute("style", "display: none");
+                console.log('false number = ' + number + ' i = ' + i);
+            }
+        }
+        setStep(step);
+        refresh();
+        return null;
+    }
+*/
+</script>
+<apex:form style="width: 100%; background-color: #F8F8F8;" id="theForm">
+    <apex:stylesheet value="{!URLFOR($Resource.Wizard_css)}"/>
+    <apex:actionFunction name="setStep" reRender="theForm" oncomplete="console.log('currentStep = ' + currentStep);">
+        <apex:param name="currentStep" value="" assignTo="{!currentStep}"/>
+    </apex:actionFunction>
+    <apex:actionFunction name="refresh" reRender="" />
+    <apex:actionFunction name="addContactToRoster" reRender="" />
+
+      <apex:actionFunction name="goToStep1" reRender="" oncomplete=""/>
+      <apex:actionFunction name="goToStep2" reRender="" oncomplete=""/>
+      <apex:actionFunction name="goToStep3" reRender="" oncomplete=""/>
+      <apex:actionFunction name="goToStep4" reRender="" oncomplete=""/>
+
+
+    <table cellspacing="0" cellpadding="0" style="width: 100%; table-layout: fixed;">
+        <tr>
+            <td style="width: 69%; vertical-align: top;">
+                <div onclick="goToStep(1); return false;" class="stepHolder step1Normal" style="display: {!IF(currentStep != '1', 'block', 'none')};height: 50px;">
+                    <div class="step">
+                        <div class="nodownarrow">Step 1:<br/> PHASE 1 <br/> Assess Impact And Assign Roles </div>
+                    </div>
+                </div>
+                <div class="stepHolder step1Blue" style="display: {!IF(currentStep == '1', 'block', 'none')};height: 50px;">
+                    <div class="step blue">
+                        <div class="downarrow">Step 1:<br/> PHASE 1 <br/> Assess Impact And Assign Roles </div>
+                    </div>
+                </div>
+                <div class="blankspace"><div class="arrowholder"><div class="rightarrow"></div></div></div>
+                <div onclick="goToStep(2); return false;" class="stepHolder step2Normal" style="display: {!IF(currentStep != '2', 'block', 'none')};height: 50px;">
+                    <div class="step">
+                        <div class="nodownarrow">Step 2:<br/> PHASE 2<br/> Make The Decision </div>
+                    </div>
+                </div>
+                <div class="stepHolder step2Blue" style="display: {!IF(currentStep == '2', 'block', 'none')};height: 50px;">
+                    <div class="step blue">
+                        <div class="downarrow">Step 2:<br/> PHASE 2<br/> Make The Decision </div>
+                    </div>
+                </div>
+                <div class="blankspace"><div class="arrowholder"><div class="rightarrow"></div></div></div>
+                <div onclick="goToStep(3); return false;" class="stepHolder step3Normal" style="display: {!IF(currentStep != '3', 'block', 'none')};height: 50px;">
+                    <div class="step">
+                        <div class="nodownarrow">Step 3:<br/> PHASE 3 <br/> Execute The Decision </div>
+                    </div>
+                </div>
+                <div class="stepHolder step3Blue" style="display: {!IF(currentStep == '3', 'block', 'none')};height: 50px;">
+                    <div class="step blue">
+                        <div class="downarrow">Step 3:<br/> PHASE 3 <br/> Execute The Decision </div>
+                    </div>
+                </div>
+                <div class="blankspace"><div class="arrowholder"><div class="rightarrow"></div></div></div>
+                <div onclick="goToStep(4); return false;" class="stepHolder step4Normal" style="display: {!IF(currentStep != '4', 'block', 'none')};height: 50px;">
+                    <div class="step">
+                        <div class="nodownarrow">Step 4:<br/>PHASE 4<br/> Evaluate The Decision </div>
+                    </div>
+                </div>
+                <div class="stepHolder step4Blue" style="display: {!IF(currentStep == '4', 'block', 'none')};height: 50px;">
+                    <div class="step blue">
+                        <div class="downarrow">Step 4:<br/>PHASE 4<br/> Evaluate The Decision </div>
+                    </div>
+                </div>
+                <div class="innerpadding"></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top;">
+                <div class="header">
+                    <div>
+                        <div id="step1Block" style="display: {!IF(currentStep != '1', 'block', 'none')};">
+                            <div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle">Project Information</h2>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div style="margin-left: 30px;">
+                                <table>
+                                    <tr><td class="labelText">{!$ObjectType.xrospackages__Project__c.fields.Name.label}</td><td><apex:inputField value="{!project.Name}"/></td></tr>
+                                    <tr><td class="labelText">{!$ObjectType.Project__c.fields.Due_Date__c.label}</td><td><apex:inputField value="{!project.Due_Date__c}"/></td></tr>
+                                    <tr><td class="labelText">{!$ObjectType.Project__c.fields.Status__c.label}</td><td><apex:inputField value="{!project.Status__c}"/></td></tr>
+                                    <tr><td class="labelText">{!$ObjectType.Project__c.fields.Workstream__c.label}</td><td><apex:inputField value="{!project.Workstream__c}"/></td></tr>
+                                </table>
+                            </div>
+                            <div class="individualPalette"><div class="Custom43Block"><div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div></div></div>
+                            <div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle">Rosters</h2>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="dataCol dataCell" colspan="4"><br/>
+                                <apex:outputPanel id="projectRosters">
+                                    <table class="generalTableStyle" id="firstStepRosterTable" style="margin-bottom: 0px;margin-left: 30px;width:80%;">
+                                        <thead>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Role</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                        </thead>
+                                        <tbody>
+                                            <apex:repeat value="{!rosters}" var="valRoster">
+                                                <tr>
+                                                    <td>{!valRoster.User__r.FirstName}</td>
+                                                    <td>{!valRoster.User__r.LastName}</td>
+                                                    <td>{!valRoster.Role__c}</td>
+                                                    <td>{!valRoster.User__r.Email}</td>
+                                                    <td>{!valRoster.User__r.Phone}</td>
+                                                </tr>
+                                            </apex:repeat>
+                                        </tbody>
+                                    </table>
+                                </apex:outputPanel>
+                            </div><br/>
+                            <div class="pbBottomButtons" style="margin-top: 0px; display: block;margin-left: 30px;">
+                                <table border="0" cellpadding="0" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: left; padding-top: 5px; padding-bottom: 15px;" class="pbButtonb">
+                                                <div style="display: inline-block;">
+                                                    <span class="labelText">User:</span>
+                                                    <apex:inputField id="addContactToRoster" value="{!roster.User__c}" required="true" onchange="addContactToRoster();"/>
+                                                </div>
+                                                <div style="display: inline-block;">
+                                                    <span class="labelText">Role:</span>
+                                                    <apex:inputField id="addRoleToRoster" value="{!roster.Role__c}" required="true" onchange="addContactToRoster();" />
+                                                </div>
+                                                <div style="display: inline-block;">
+                                                    <apex:commandButton id="addRosterButton" action="{!addRoster}" status="overlay" value="Add User to roster" oncomplete="addContactToRoster();" style="width: 135px;" styleClass="{!IF(OR (ISBLANK(roster.User__c), ISBLANK(project.Id)), 'btnDisabled', '')}" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="step2Block"  style="display: {!IF(currentStep != '2', 'block', 'none')};">
+                            <div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle">PHASE 2</h2>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="labelText" style="margin-left: 30px; margin-top: 30px; height: 150px;"> PHASE 2<br/> Make The Decision</div>
+                        </div>
+                        <div id="step3Block"  style="display: {!IF(currentStep != '3', 'block', 'none')};">
+                            <div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle">PHASE 2</h2>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="labelText" style="margin-left: 30px; margin-top: 30px; height: 150px;"> PHASE 3<br/> Execute The Decision</div>
+                        </div>
+                        <div id="step4Block" style="display: {!IF(currentStep != '4', 'block', 'none')};">
+                            <div class="bPageBlock brandSecondaryBrd apexDefaultPageBlock secondaryPalette">
+                                <div class="pbHeader">
+                                    <table border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="pbTitle" style="width: 50%;">
+                                                    <h2 class="mainTitle">PHASE 4</h2>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="labelText" style="margin-left: 30px; margin-top: 30px; height: 150px;"> PHASE 4<br/> Evaluate The Decision</div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <apex:outputPanel id="footer">
+                    <div class="footer">
+                        <div class="footerInnerPadding">
+                            <div class="footerButtonRight">
+                                <div class="footerTextPadding">Actions:</div>
+                                <div style="display: inline-block;">
+                                    <apex:commandButton value="Close" action="{!cancel}"/>
+                                </div>
+                                <div style="display: inline-block;">
+                                    <apex:commandButton value="Save" action="{!save}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputPanel>
+            </td>   
+        </tr>
+    </table>
+</apex:form>
+
+<script type="text/javascript">
+    $(document).ready(function() { goToStep(); });
+</script>
+</apex:page>

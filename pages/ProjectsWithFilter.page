@@ -1,0 +1,140 @@
+<apex:page standardController="Project__c" extensions="ProjectListCont" tabStyle="Executive_Summary__tab">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="   crossorigin="anonymous"></script>
+
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+    thead tr:first-child th {
+        border-bottom: 0;
+        padding-bottom: 4px;
+    }
+    thead tr th:first-child {
+        width: 60%
+    }
+    #filterrow th {
+        padding: 2px 5px;
+    }
+    #filterrow input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+    .phase-sub-phase:before {
+        content: attr(data-content);
+    }
+    .dataTable td:not(:last-child) {
+        border-right: 1px solid #ddd;
+    }
+    .proj-name {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .proj-name {
+        width: 60%;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none; 
+    }
+    .decision-impact {
+        display: inline-block;
+        margin-right: 15px;
+        line-height: 30px;
+        vertical-align: top;
+    }
+    .proj-status .on-track,
+    .proj-status .at-risk,
+    .proj-status .behind {
+        display: inline-block;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        border: 2px solid #000;
+    }
+    .proj-status .on-track {
+        background: green;
+    }
+    .proj-status .at-risk {
+        background: yellow;
+    }
+    .proj-status .behind {
+        background: red;
+    }
+</style>
+<apex:form >
+<main>
+    <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr id="filterrow">
+                <th width="70%">Project</th>
+                <th width="10%">Sponsor</th>
+                <th width="10%">Decision Maker</th>
+                <th width="10%">Due Date</th>
+            </tr>
+            <tr id="filterrow">
+                <th width="70%">Project</th>
+                <th width="10%">Sponsor</th>
+                <th width="10%">Decision Maker</th>
+                <th width="10%">Due Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <apex:repeat value="{!projects}" var="p">
+                <tr>
+                    <td>
+                        <div class="proj-info">
+                            <a class="proj-name" href="/{!p.Id}">{!p.Name}</a>
+                        </div>
+                        <div class="phase-sub-phase">
+                            <c:PhaseProgressBarShort value="{!p.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isPhase="true" parentRecordId="{!p.Id}"/>
+                            <c:PhaseProgressBarShort value="{!p.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" id="subPhasesAll" allSubphases="true" isPhase="false" parentRecordId="{!p.Id}"/>
+                        </div>
+                    </td>
+                    <td><a href="/{!p.Sponsor__c}">{!p.xrospackages__Sponsor__r.Name}</a></td>
+                    <td><a href="/{!p.Decision_Maker__c}">{!p.xrospackages__Decision_Maker__r.Name}</a></td>
+                    <td><apex:outputField value="{!p.Due_Date__c}"/></td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+    </table>
+</main>
+</apex:form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+<script>
+        // Setup - add a text input to each footer cell
+    $('#example thead tr#filterrow th').each( function () {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        if(title!=null && title != ''){
+            $(this).html( '<input type="text" onclick="stopPropagation(event);" placeholder="Search '+title+'" />' );   
+        }
+    } );
+    $('#example').DataTable({
+        'bPaginate' : false,
+        'bLengthChange' : false,
+        'bInfo' : false
+    });
+    // DataTable
+    var table = $('#example').DataTable();
+     
+    // Apply the filter
+    $("#example thead input").on( 'keyup change', function () {
+        table
+            .column( $(this).parent().index()+':visible' )
+            .search( this.value )
+            .draw();
+    } );
+
+    function stopPropagation(evt) {
+        if (evt.stopPropagation !== undefined) {
+            evt.stopPropagation();
+        } else {
+            evt.cancelBubble = true;
+        }
+    }
+    
+    // Temporary - while hardcoded - no active phases 
+    $('ul li:nth-child(1), ul li:nth-child(2)').addClass('active');
+</script>
+</apex:page>

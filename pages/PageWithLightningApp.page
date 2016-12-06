@@ -1,0 +1,15 @@
+<apex:page >
+    <apex:includeLightning />
+    
+    <div id="lightning">
+        <script>
+        	$Lightning.use("xrospackages:expenseTracker", function(){
+            	$Lightning.createComponent("xrospackages:form",
+                                          { total : 1 },
+                                          "lightning",
+                                          function(cmp){
+                                          });
+            });
+        </script>
+    </div>
+</apex:page>

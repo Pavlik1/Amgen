@@ -1,0 +1,4 @@
+<apex:page standardController="Project__c" showHeader="false" sidebar="false">
+	<c:PhaseProgressBar value="{!Project__c.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isPhase="true" parentRecordId="{!Project__c.Id}"/>
+	<c:PhaseProgressBar value="{!Project__c.Sub_Phases__c}" field="xrospackages__Project__c.xrospackages__Sub_Phases__c" id="subPhasesAll" allSubphases="true" isPhase="false" parentRecordId="{!Project__c.Id}"/>
+</apex:page>

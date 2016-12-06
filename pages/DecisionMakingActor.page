@@ -1,0 +1,41 @@
+<apex:page standardController="Project__c">
+	<style>
+		.wrapper {
+		    padding: 0 50px;	
+		}
+		.actor {
+			display: inline-block;
+		    width: 25%;
+		    float: left;
+		}
+		.actor .icon {
+    		width: 120px;
+		    margin: auto;
+		    display: block;
+		}
+		.actor .description {
+		    text-align: center;
+		    width: 50%;
+		    margin: auto;
+		    font-size: 11px;
+		}
+	</style>
+	<main class="wrapper">
+		<a href="" class="actor">
+			<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/actor_d.png')}"/>
+			<p class="description">Makes and communicates with the decision; accountable for impact on business</p>
+		</a>
+		<a href="" class="actor">
+			<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/actor_a.png')}"/>
+			<p class="description">Provide(s) input, data, and advice based on expertise and experiace</p>
+		</a>
+		<a href="" class="actor">
+			<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/actor_i.png')}"/>
+			<p class="description">Execute(s) the decision or need(s) to be informed after a decision has been made</p>
+		</a>
+		<a href="" class="actor">
+			<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/actor_s.png')}"/>
+			<p class="description"></p>
+		</a>
+	</main>
+</apex:page>

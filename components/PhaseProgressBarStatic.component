@@ -1,0 +1,112 @@
+<apex:component controller="PhaseProgressBarController">
+    <apex:attribute name="value" required="true" type="String" assignTo="{!fieldValue}" description="Currently selected stage"/>
+    <apex:attribute name="field" required="true" type="String" assignTo="{!fieldName}" description="The picklist field that forms progress bar" />
+    <apex:attribute name="controllingField" required="false" type="String" assignTo="{!controllingFieldName}" description="Controlling Field for current one" />
+    <apex:attribute name="isActivePhase" type="String" description="The description of phase" />
+    <apex:attribute name="parentRecordId" required="true" type="String" assignTo="{!projectId}" description="Id of Parent record" />
+    <apex:attribute name="isPhase" required="true" type="Boolean" assignTo="{!isPhaseVal}" description="The description of phase" />
+    <style>
+        .stackedProgress {
+            display: table;
+            table-layout: fixed;
+            border-collapse: separate;
+            width: 100%;
+            padding: 0;
+            position: relative;
+        }
+        /* Phases */
+        .stackedProgress .phase-name {
+            display: table-cell;
+            height: 46px;
+            vertical-align: middle;
+            text-align: center;
+            position: relative;
+            font: italic bold 16px Arial, Helvetica, sans-serif;
+            border: 1px solid #4169e1;
+        }
+        .stackedProgress .phase-name:first-child {
+            background-color: #F3F3F3;
+            border-radius: 5px 0 0 5px;
+        }
+        .stackedProgress .phase-name:last-child {
+            background: #EBB009;
+            border-radius: 0 5px 5px 0;
+        }
+        .stackedProgress .phase-name:nth-child(2) {
+            color: #fff;
+            background: #62b1f6;
+        }
+        .stackedProgress .phase-name:nth-child(3) {
+            color: #fff;
+            background: #01DF3A;
+        }
+        /* Phases Arrows */
+        .stackedProgress .phase-name:not(:last-child):after, 
+        .stackedProgress .phase-name:not(:last-child):before {
+            border: solid transparent;
+            content: ' ';
+            height: 0;
+            left: 100%;
+            position: absolute;
+            width: 0;
+            z-index: 1;
+        }
+        .stackedProgress .phase-name:not(:last-child):before {
+            border-width: 26px;
+            top: -1px;
+            border-left-color: #4169e1;
+        }
+        .stackedProgress .phase-name:not(:last-child):after {
+            border-width: 25px;
+            top: 0px;
+        }
+        .stackedProgress .phase-name:first-child:after {
+            border-left-color: #F3F3F3;
+        }
+        .stackedProgress .phase-name:nth-child(2):after {
+            border-left-color: #62b1f6;
+        }
+        .stackedProgress .phase-name:nth-child(3):after {
+            border-left-color: #01DF3A;
+        }
+        /* Active Phase */
+        .stackedProgress .phase-name.active {
+            border: 3px solid #ff6873;
+        }
+        .stackedProgress .phase-name.active:not(:last-child):before,
+        .stackedProgress .phase-name.pre-active:before {
+            border-left-color:#ff6873;
+        }
+        .stackedProgress .phase-name.active:not(:last-child):before {
+            border-width: 29px;
+            top: -6px;
+        }
+        .stackedProgress .phase-name.active:not(:last-child):after {
+            border-width: 23px;
+        }
+        .stackedProgress .phase-name.pre-active:after {
+            border-width: 23px;
+            top: 2px;
+        }
+        /* Phase Description */
+        .stackedProgress .phase-description {
+            display: block;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 500;
+        }
+    </style>
+    <ul class="stackedProgress">
+        <apex:repeat value="{!phases}" var="ph">
+            <li class="phase-name">
+                {!ph['Name']}
+                <apex:outputText styleClass="phase-description" value="{!ph['Description__c']}" />
+            </li>
+        </apex:repeat>
+    </ul>
+    <script>
+        var prePhase = {!isActivePhase} - 1;
+        $('.stackedProgress .phase-name:nth-child({!isActivePhase})').addClass('active');
+        $('.stackedProgress .phase-name:nth-child(' + prePhase + ')').addClass('pre-active');
+    </script>
+</apex:component>

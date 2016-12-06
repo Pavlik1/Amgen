@@ -1,0 +1,279 @@
+<apex:page controller="DecisionEvaluationToolController" title="Decision Evaluation Tool" tabStyle="Project__c" action="{!openPageAction}">
+    <apex:stylesheet value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/css/jquery.dataTables.min.css')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.js')}" /> 
+    <apex:includeScript value="{!URLFOR($Resource.DataTable, '/DataTables-1.10.10/media/js/jquery.dataTables.min.js')}" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.DecisionMakingTools, 'DecisionMakingTools.css' )}"/>
+
+    <apex:form >
+        <apex:pageMessages id="pageMessages"/>
+        <apex:pageBlock >
+            <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" />
+                <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" action="{!submit}"/>
+            </apex:outputPanel> <br />
+
+            <div class="header header-grad">Decision Evaluation Tool</div>
+
+            <c:PhaseProgressBarStatic value="{!project.Phase__c}" field="xrospackages__Project__c.xrospackages__Phase__c" id="phasesProgress" isActivePhase="{!Right(project.Phase__c, 1)}" isPhase="true" parentRecordId="{!project.Id}"/>
+
+            <div>
+                <b>Note:</b> <span class="label">This tool is designed to be completed by the sponsor and shared with the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>); however, the sponsor may ask the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>) to use this tool to do a self-evaluation.</span>
+            </div><br />
+
+            <c:ProjectInformation project="{!project}"/>
+
+            <fieldset>
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%"><apex:outputLabel styleClass="label" for="expected-outcomes" value="Did the decision meet the expected business outcomes?"/></td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" value="{!project.Did_the_decision_meet_expected_outcomes__c}" 
+                             onchange="hideVariance(this.value);"/></td>
+                        </tr>
+
+                        <tr id="varianceId" style="display: none;">
+                            <td width="40%"><apex:outputLabel styleClass="label" for="variance" value="Quantify the variance"/></td>
+                            <td width="60%" style="text-align: left;padding-top: 5px;"><apex:inputField styleClass="form-control" id="variance" value="{!project.Variance__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+            
+                <apex:outputPanel id="resultPanelId">
+                    <apex:outputLabel styleClass="label" style="font-size: 15px;" value="What are the most relevant learnings from the decision and the subsequent business results?"/>
+                    <table class="tasksTable" id="resultsTableId">
+                        <thead>
+                            <tr>
+                                <th width="10%">Name</th>
+                                <th width="30%">Result</th>
+                                <th width="20%">Project</th>
+                                <th width="5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <apex:repeat value="{!resultWrappers}" var="row" >
+                                <apex:inlineEditSupport event="ondblclick" resetFunction="resetInlineEdit" hideOnEdit="newResultId" showOnEdit="saveId, saveAndNewId"/>
+                                <tr>
+                                    <td>
+                                        <apex:outputLink value="/{!row.sObjectItem['Id']}/e?retURL=/apex/DecisionEvaluationTool?id={!project.Id}" rendered="{!row.sObjectItem['Id'] != null}">
+                                            <apex:outputField value="{!row.sObjectItem['Name']}" />
+                                        </apex:outputLink>
+                                        <apex:inputField value="{!row.sObjectItem['Name']}" rendered="{!row.sObjectItem['Id'] == null}" required="true"/>
+                                    </td>
+                                    <td>
+                                        <apex:outputField value="{!row.sObjectItem['Result__c']}" rendered="{!row.sObjectItem['Id'] != null}"/>  
+                                        <apex:inputField value="{!row.sObjectItem['Result__c']}"  rendered="{!row.sObjectItem['Id'] == null}" />             
+                                    </td>
+                                    <td>
+                                        <apex:outputField value="{!row.sObjectItem['Project__c']}" rendered="{!row.sObjectItem['Id'] != null}"/> 
+                                        <apex:inputField value="{!row.sObjectItem['Project__c']}"  rendered="{!row.sObjectItem['Id'] == null}"/>                        
+                                    </td>
+                                    <td>
+                                        <apex:commandLink action="{!openPopup}" reRender="pageMessages, cancelpopup" immediate="true">
+                                            <apex:image value="/img/func_icons/remove12_on.gif" width="15" height="15" title="Remove Business Result"/>
+                                            <apex:param name="resultToDelete" value="{!row.index}" assignTo="{!resultToDelete}"/>
+                                        </apex:commandLink>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </tbody>
+                    </table>
+                    <script>
+                        $(document).ready(function() {
+                            $('[id$="resultsTableId"]').dataTable();
+                        }); 
+                    </script> 
+                </apex:outputPanel>
+
+                <apex:outputPanel id="resultButtonsId">
+                    <apex:commandButton value="Add Business Result" styleClass="btn-add-row btn-page-block" id="newResultId" action="{!addResult}" reRender="resultPanelId, pageMessages, resultButtonsId" 
+                    rendered="{!displayAddResult}"/>
+                    <apex:commandButton value="Save" styleClass="btn-add-row btn-page-block" id="saveId" action="{!saveResult}" reRender="resultPanelId, pageMessages, resultButtonsId" 
+                    style="{!IF((displayAddResult), 'display: none;', '')}"/>
+                    <apex:commandButton value="Save And New" styleClass="btn-add-row btn-page-block" id="saveAndNewId" action="{!saveAndNew}" reRender="resultPanelId, pageMessages, resultButtonsId" 
+                    style="{!IF((displayAddResult), 'display: none;', '')}"/>
+                </apex:outputPanel>
+
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label" for="decisionfact" value="Do you believe the decision was based on appropriate facts?"/></td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" id="decisionfact" value="{!project.Was_decision_based_on_appropriate_facts__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label" for="decisiontime" value="Was the decision made within the stated time period per your DMGT?"/></td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" id="decisiontime" value="{!project.Was_decision_made_within_stated_time__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label" for="planeffective" value="Was the execution plan that was developed effective?"/></td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" id="planeffective" value="{!project.Was_the_execution_plan_effective__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" for="plan-comment" value="Please specify:"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><apex:inputTextarea id="plan-comment" value="{!project.Was_execution_plan_effective_Comment__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>      
+            
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label" for="appropriatelevel" >
+                                Was the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>) at the appropriate level to make the decision? </apex:outputLabel>
+                            </td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" id="appropriatelevel" value="{!project.D_at_appropriate_level_to_make_decision__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" value="Please specify:"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><apex:inputTextarea value="{!project.Appropriate_level_make_decision_Comment__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label">
+                                Upon reflection, did the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>) select appropriate A's? </apex:outputLabel>
+                            </td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" value="{!project.Did_the_D_select_appropriate_A_s__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" value="Please specify:"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><apex:inputTextarea value="{!project.Did_the_D_select_appropriate_A_s_Comment__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label">
+                                What coaching have you given the Decision Maker(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_d.png')}"/>) regarding this project? </apex:outputLabel>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><apex:inputTextarea value="{!project.What_coaching_have_you_given_the_D__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="40%" ><apex:outputLabel styleClass="label">
+                                Did you, as a sponsor(<apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_s.png')}"/>), also play a role on this decision-making team (i.e. were you an 
+                                <apex:image styleClass="icon" url="{!URLFOR($Resource.Icons, 'icons/icon_a.png')}"/>)? </apex:outputLabel>
+                            </td>
+                            <td width="60%" style="text-align: left;"><apex:inputField styleClass="form-control" value="{!project.Sponsor_played_role_on_decision_making__c}"/></td>
+                        </tr>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" value="Please specify:"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><apex:inputTextarea value="{!project.Sponsor_role_on_decision_making_Comment__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset style="margin: 10px 0;">
+                <table class="table" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td><apex:outputLabel styleClass="label" value="What is your path moving forward?" /></td>
+                        </tr>
+                        <tr>
+                            <td><apex:inputTextarea value="{!project.What_is_your_path_moving_forward__c}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>     
+
+            <script type="text/javascript">
+                $( document ).ready(function() {
+                    if ('{!project.Did_the_decision_meet_expected_outcomes__c}' == 'No') {
+                        document.getElementById('varianceId').style.display = '';
+                    }
+                });
+
+                function hideVariance(selectedValue) {
+                    if (selectedValue != 'No') {
+                         document.getElementById('varianceId').style.display = 'none';
+                    
+                    } else {
+                        document.getElementById('varianceId').style.display = '';
+                    }
+                }
+            </script>
+
+             <apex:outputPanel layout="block">
+                <apex:commandButton value="Back"   styleClass="btn-add-row btn-page-block" action="{!goBack}" />
+                <apex:commandButton value="Submit" styleClass="btn-add-row btn-page-block" action="{!submit}"/>
+            </apex:outputPanel>
+
+        </apex:pageBlock>
+
+        <!-- Start Pop-up -->
+        <apex:outputPanel id="cancelpopup" >
+            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>
+            <apex:outputPanel styleClass="innerPopup" layout="block"  rendered="{!displayPopUp}">
+                <table>
+                    <tr>
+                        <td>
+                            <apex:commandlink action="{!closePopup}" style="float:right;overflow:hidden;width:17px" rerender="pageMessages, cancelpopup" immediate="true">
+                                <apex:image value="/img/func_icons/util/dialogClose16.gif" style="float:right;display:block;" />
+                            </apex:commandLink>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding:10px 10px 5px 10px; ">Do you really want to remove Business Result?</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;padding-bottom:10px;">
+                            <apex:commandbutton value="Remove" action="{!deleteResult}" rerender="pageMessages, cancelpopup, resultPanelId, resultButtonsId" styleClass="btn-add-row btn-page-block" immediate="true"/>
+                            <apex:commandbutton value="Cancel" action="{!closePopup}" rerender="pageMessages, cancelpopup" styleClass="btn-add-row btn-page-block" immediate="true"/>
+                        </td>
+                    </tr>
+                </table>
+            </apex:outputPanel>
+        </apex:outputPanel>
+        <!-- End Pop-up --> 
+
+    </apex:form>
+</apex:page>
